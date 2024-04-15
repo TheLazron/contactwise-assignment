@@ -24,3 +24,9 @@ export const RegisterSchema = z.object({
 export const verifyTokenSchema = z.object({
   token: z.string(),
 });
+
+export const ResetPasswordSchema = z.object({
+  email: z.string().email({
+    message: "Email is required",
+  }),
+});

@@ -31,9 +31,6 @@ export default function RootLayout({
           <Toaster />
           <div className="bg-polka-pattern ">
             <div className="relative mx-4 flex h-screen max-h-screen flex-col justify-start sm:mx-12 md:mx-16">
-              <div className="absolute top-5 w-full">
-                <Navbar />
-              </div>
               <div className="mt-24 md:my-auto">{children}</div>
             </div>
           </div>
