@@ -1,21 +1,17 @@
-import { LoginSchema, RegisterSchema } from "schemas";
-import type { z } from "zod";
+import { LoginSchema, RegisterSchema, verifyTokenSchema } from "schemas";
+import { z } from "zod";
 import bcrypt from "bcryptjs";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { generateVerificationToken } from "~/lib/tokens";
+import {
+  generateVerificationToken,
+  getVerificationTokenByToken,
+} from "~/lib/tokens";
 import { sendVerificationRequest } from "~/server/nodemailer";
+import { verify } from "crypto";
 
 export const authRouter = createTRPCRouter({
-  login: publicProcedure.input(LoginSchema).mutation(async ({ ctx, input }) => {
-    const user: z.infer<typeof LoginSchema> = {
-      email: input.email,
-      password: input.password,
-    };
-    console.log("login request", user);
-    return user;
-  }),
   register: publicProcedure
     .input(RegisterSchema)
     .mutation(async ({ ctx, input }) => {
@@ -47,5 +43,51 @@ export const authRouter = createTRPCRouter({
       await sendVerificationRequest(token.email, token.token);
       console.log("verification email sent");
       return createdUser;
+    }),
+  verifyToken: publicProcedure
+    .input(verifyTokenSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { token } = input;
+
+      const existingToken = await getVerificationTokenByToken(token);
+
+      //check for token existence and expiry
+      if (!existingToken) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Token not found",
+        });
+      }
+      if (existingToken.expires < new Date()) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Token expired",
+        });
+      }
+      //fetch user to check existence and update
+      const existingUser = await ctx.db.user.findFirst({
+        where: { email: existingToken.email },
+      });
+
+      if (!existingUser) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      await ctx.db.user.update({
+        where: { email: existingToken.email },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+
+      //delete token
+      await ctx.db.verificationToken.delete({
+        where: { token: token },
+      });
+
+      return existingUser;
     }),
 });

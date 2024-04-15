@@ -1,7 +1,7 @@
 import { db } from "~/server/db";
 import { v4 as uuid } from "uuid";
 
-export const getVerificationToken = async (email: string) => {
+export const getVerificationTokenByEmail = async (email: string) => {
   try {
     const verificationTkoen = await db.verificationToken.findFirst({
       where: { email },
@@ -12,7 +12,7 @@ export const getVerificationToken = async (email: string) => {
   }
 };
 
-export const getVerificationTokenByEmail = async (token: string) => {
+export const getVerificationTokenByToken = async (token: string) => {
   try {
     const verificationTkoen = await db.verificationToken.findUnique({
       where: { token },
@@ -27,7 +27,7 @@ export const generateVerificationToken = async (email: string) => {
   const token = uuid();
   const expires = new Date(Date.now() + 1000 * 60 * 60);
 
-  const existingToken = await getVerificationToken(email);
+  const existingToken = await getVerificationTokenByEmail(email);
 
   if (existingToken) {
     await db.verificationToken.delete({
