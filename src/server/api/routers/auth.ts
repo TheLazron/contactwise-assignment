@@ -1,4 +1,9 @@
-import { LoginSchema, RegisterSchema, verifyTokenSchema } from "schemas";
+import {
+  LoginSchema,
+  RegisterSchema,
+  ResetPasswordSchema,
+  verifyTokenSchema,
+} from "schemas";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
@@ -89,5 +94,26 @@ export const authRouter = createTRPCRouter({
       });
 
       return existingUser;
+    }),
+  resetPassword: publicProcedure
+    .input(ResetPasswordSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { email } = input;
+      const user = await ctx.db.user.findFirst({
+        where: { email },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      const token = await generateVerificationToken(email);
+
+      await sendVerificationRequest(email, token.token);
+      console.log("reset password email sent");
+      return user;
     }),
 });

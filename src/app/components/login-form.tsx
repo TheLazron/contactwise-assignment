@@ -1,8 +1,51 @@
 "use client";
-
+// import { signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa";
+import { LoginSchema } from "schemas";
+import type { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { FC, useEffect } from "react";
+import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
+
+type LoginSchemaType = z.infer<typeof LoginSchema>;
 
 const LoginForm = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginSchemaType>({
+    resolver: zodResolver(LoginSchema),
+  });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (errors.email) {
+      toast.warning(errors.email.message);
+    }
+    if (errors.password) {
+      toast.warning(errors.password.message);
+    }
+  }, [errors.email, errors.password]);
+
+  const onSubmit: SubmitHandler<LoginSchemaType> = async (data) => {
+    console.log(data);
+    const response = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
+    response?.status === 403
+      ? toast.info("Email not verified. Verification Email sent")
+      : response?.status === 200
+        ? router.push("/dashboard")
+        : toast.error("Invalid credentials");
+  };
+
   return (
     <div className="w-full  rounded-md	bg-base-100 shadow-lg sm:max-w-md md:mt-0 xl:p-0">
       <div className="flex w-full flex-col items-start space-y-4 p-6 sm:p-8 md:space-y-6">
@@ -10,8 +53,8 @@ const LoginForm = () => {
           Sign in to your account
         </h1>
         <form
+          onSubmit={handleSubmit(onSubmit)}
           className="w-full  space-y-4 md:space-y-3"
-          onSubmit={(e) => e.preventDefault()}
         >
           <div>
             <label
@@ -21,11 +64,12 @@ const LoginForm = () => {
               Your email
             </label>
             <input
+              {...register("email")}
               type="email"
               name="email"
               id="email"
               className="block w-full rounded-lg border border-accent bg-base-200 p-2.5 text-primary-content focus:border-primary focus:ring-primary sm:text-sm "
-              placeholder="name@company.com"
+              placeholder="name@domain.com"
               required
             />
           </div>
@@ -37,6 +81,7 @@ const LoginForm = () => {
               Password
             </label>
             <input
+              {...register("password")}
               type="password"
               name="password"
               id="password"
@@ -50,7 +95,14 @@ const LoginForm = () => {
             Sign In
           </button>
           <div className="divider">OR</div>
-          <button className="btn btn-outline w-full">
+          <button
+            className="btn btn-outline w-full"
+            onClick={async () => {
+              await signIn("google", {
+                callbackUrl: "/dashboard",
+              });
+            }}
+          >
             <FaGoogle />
             Sign in with Google
           </button>

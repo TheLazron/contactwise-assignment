@@ -4,11 +4,11 @@ import Image from "next/image";
 import { api } from "~/trpc/server";
 
 export default function Home() {
-  // const a = api.auth.register({
-  //   name: "John Doe",
-  //   email: "teddybearlaughs@gmail.com",
-  //   password: "password",
-  // });
+  const a = api.auth.register({
+    name: "John Doe",
+    email: "teddybearlaughs@gmail.com",
+    password: "password",
+  });
 
   return (
     <>
