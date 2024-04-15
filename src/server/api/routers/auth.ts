@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { generateVerificationToken } from "~/lib/tokens";
-import { sendVerificationRequest } from "~/server/resend";
+import { sendVerificationRequest } from "~/server/nodemailer";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure.input(LoginSchema).mutation(async ({ ctx, input }) => {
