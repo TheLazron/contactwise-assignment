@@ -4,18 +4,7 @@ const Navbar = async () => {
   const session = await getServerAuthSession();
 
   return (
-    // <header className="body-font base-content w-full bg-base-200 ">
-    //   <div className="content container mx-auto flex flex-row flex-wrap items-center p-5 md:flex-row">
-    //     <a className="title-font mb-4 flex items-center font-medium  md:mb-0">
-    //       <span className="ml-3 text-xl">User Management</span>
-    //     </a>
-    //     <nav>
-    //       <button className="btn btn-primary">Sign Up</button>
-    //       <button className="btn btn-outline btn-neutral">Login</button>
-    //     </nav>
-    //   </div>
-    // </header>
-    <div className="glass navbar justify-self-start rounded-md shadow-lg ">
+    <div className="glass navbar w-full justify-self-start rounded-md shadow-lg ">
       <div className="flex flex-1 items-center gap-1">
         <div className="w-6 flex-none sm:w-10">
           <img alt="Tailwind CSS Navbar component" src="/navbar-logo.png" />

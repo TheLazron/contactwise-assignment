@@ -1,8 +1,15 @@
 import Link from "next/link";
 import Navbar from "./components/navbar";
 import Image from "next/image";
+import { api } from "~/trpc/server";
 
 export default function Home() {
+  const a = api.auth.register({
+    name: "John Doe",
+    email: "teddybearlaughs@gmail.com",
+    password: "password",
+  });
+
   return (
     <>
       <main className="flex flex-col items-center justify-center">
@@ -15,7 +22,7 @@ export default function Home() {
               "
             >
               User
-              <span className="drop-shadow-glow bg-gradient-to-tr  from-accent 	to-secondary bg-clip-text text-transparent">
+              <span className="bg-gradient-to-tr from-accent  to-secondary 	bg-clip-text text-transparent drop-shadow-glow">
                 {" "}
                 management
               </span>{" "}

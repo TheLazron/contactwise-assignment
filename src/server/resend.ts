@@ -1,27 +1,19 @@
 import { Resend } from "resend";
-import type { SendVerificationRequestParams } from "next-auth/providers/email";
 
-export const sendVerificationRequest = async (
-  params: SendVerificationRequestParams,
-) => {
-  const {
-    identifier: email,
-    url,
-    provider: { from },
-  } = params;
-
+export const sendVerificationRequest = async (email: string, token: string) => {
+  const verificationLink = `http://localhost:3000/verify-email?token=${token}`;
   try {
     const resendApiKey = process.env.RESEND_API_KEY;
     const resend = new Resend(resendApiKey);
     await resend.emails.send({
-      from: from,
+      from: "Aryaman <onboarding@resend.dev>",
       to: email,
-      subject: "Login Link to your Account",
+      subject: "Landscape: Confirm your email address ",
       html:
-        '<p>Click the magic link below to sign in to your account:</p>\
+        '<p>To complete registration, verify your email by clicking the link below:</p>\
              <p><a href="' +
-        url +
-        '"><b>Sign in</b></a></p>',
+        verificationLink +
+        '"><b>Verify Email</b></a></p>',
     });
   } catch (error) {
     console.log({ error });
