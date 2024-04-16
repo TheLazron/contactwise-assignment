@@ -37,3 +37,10 @@ export const NewPasswordSchema = z.object({
   }),
   token: z.string(),
 });
+
+export const OrgObject = z.object({
+  orgName: z.string().min(3),
+  owner: z.string(),
+  memberCount: z.number().positive(),
+  bannerImg: z.string().url(),
+});

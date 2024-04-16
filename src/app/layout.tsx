@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={` bg-base-100 object-cover font-sans ${notoSans.variable}`}
+        className={`bg-base-100 object-cover font-sans ${notoSans.variable}`}
       >
         <TRPCReactProvider>
           <Toaster />

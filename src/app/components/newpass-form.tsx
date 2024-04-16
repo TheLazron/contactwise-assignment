@@ -44,13 +44,11 @@ const NewPasswordForm = () => {
     onError: (error) => {
       toast.error(error.message);
     },
-    onSettled: (data) => {
-      if (data) {
-        toast.success("Password changed successfully!");
-        setTimeout(() => {
-          router.push("/auth/signin");
-        }, 2000);
-      }
+    onSuccess: () => {
+      toast.success("Password changed successfully!");
+      setTimeout(() => {
+        router.push("/auth/signin");
+      }, 2000);
     },
   });
 
