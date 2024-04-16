@@ -3,10 +3,10 @@ import { v4 as uuid } from "uuid";
 
 export const getVerificationTokenByEmail = async (email: string) => {
   try {
-    const verificationTkoen = await db.verificationToken.findFirst({
+    const verificationToken = await db.verificationToken.findFirst({
       where: { email },
     });
-    return verificationTkoen;
+    return verificationToken;
   } catch {
     return null;
   }
@@ -14,10 +14,10 @@ export const getVerificationTokenByEmail = async (email: string) => {
 
 export const getVerificationTokenByToken = async (token: string) => {
   try {
-    const verificationTkoen = await db.verificationToken.findUnique({
+    const verificationToken = await db.verificationToken.findUnique({
       where: { token },
     });
-    return verificationTkoen;
+    return verificationToken;
   } catch {
     return null;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
@@ -8,6 +8,7 @@ import { api } from "~/trpc/react";
 const VerifytokenPage = () => {
   // const a = api.auth.verifyToken();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
 
   useEffect(() => {
@@ -20,10 +21,13 @@ const VerifytokenPage = () => {
 
   const verifyToken = api.auth.verifyToken.useMutation({
     onSuccess(data, variables, context) {
-      console.log("data", data);
-      console.log("variables", variables);
-      console.log("context", context);
       toast.success("Email Verified");
+      setTimeout(() => {
+        router.push("/auth/signin");
+      }, 2000);
+    },
+    onError(error) {
+      toast.error(error.message);
     },
   });
 

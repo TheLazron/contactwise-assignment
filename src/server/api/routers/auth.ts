@@ -1,5 +1,6 @@
 import {
   LoginSchema,
+  NewPasswordSchema,
   RegisterSchema,
   ResetPasswordSchema,
   verifyTokenSchema,
@@ -12,9 +13,10 @@ import { TRPCError } from "@trpc/server";
 import {
   generateVerificationToken,
   getVerificationTokenByToken,
-} from "~/lib/tokens";
-import { sendVerificationRequest } from "~/server/nodemailer";
+} from "~/lib/verification-token";
+import { sendMailRequest } from "~/server/nodemailer";
 import { verify } from "crypto";
+import { generateResetToken } from "~/lib/reset-token";
 
 export const authRouter = createTRPCRouter({
   register: publicProcedure
@@ -45,7 +47,7 @@ export const authRouter = createTRPCRouter({
 
       const token = await generateVerificationToken(user.email);
 
-      await sendVerificationRequest(token.email, token.token);
+      await sendMailRequest(token.email, token.token, "verification");
       console.log("verification email sent");
       return createdUser;
     }),
@@ -110,10 +112,57 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      const token = await generateVerificationToken(email);
+      const token = await generateResetToken(email);
 
-      await sendVerificationRequest(email, token.token);
+      await sendMailRequest(email, token.token, "password-reset");
       console.log("reset password email sent");
       return user;
+    }),
+  changePassword: publicProcedure
+    .input(NewPasswordSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { password, token } = input;
+
+      const resetToken = await ctx.db.resetPassToken.findFirst({
+        where: { token },
+      });
+
+      if (!resetToken) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Token not found",
+        });
+      }
+
+      if (resetToken.expires < new Date()) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Token expired",
+        });
+      }
+
+      const user = await ctx.db.user.findFirst({
+        where: { email: resetToken.email },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      const hashedPass = await bcrypt.hash(password, 10);
+
+      await ctx.db.user.update({
+        where: { email: resetToken.email },
+        data: {
+          password: hashedPass,
+        },
+      });
+
+      await ctx.db.resetPassToken.delete({
+        where: { token },
+      });
     }),
 });

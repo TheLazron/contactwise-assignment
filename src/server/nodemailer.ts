@@ -11,20 +11,44 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendVerificationRequest = async (email: string, token: string) => {
-  const verificationLink = `http://localhost:3000/auth/verify-email?token=${token}`;
+type EmailType = "verification" | "password-reset";
 
+export const sendMailRequest = async (
+  email: string,
+  token: string,
+  type: EmailType,
+) => {
+  const verificationLink = `http://localhost:3000/auth/verify-email?token=${token}`;
+  const passwordResetLink = `http://localhost:3000/auth/new-password?token=${token}`;
   try {
-    const mailOptions = {
-      from: "Landscape <teddybearlaughs@gmail.com>",
-      to: email,
-      subject: "Landscape: Confirm your email address ✉",
-      html:
-        '<p>To complete registration, verify your email by clicking the link below:</p>\
+    let mailOptions = {};
+    switch (type) {
+      case "verification":
+        mailOptions = {
+          from: "Landscape <teddybearlaughs@gmail.com>",
+          to: email,
+          subject: "Landscape: Confirm your email address ✉",
+          html:
+            '<p>To complete registration, verify your email by clicking the link below:</p>\
              <p><a href="' +
-        verificationLink +
-        '"><b>Verify Email</b></a></p>',
-    };
+            verificationLink +
+            '"><b>Verify Email</b></a></p>',
+        };
+
+        break;
+      case "password-reset":
+        mailOptions = {
+          from: "Landscape <teddybearlaughs@gmail.com>",
+          to: email,
+          subject: "Landscape: Reset your password ✉",
+          html:
+            '<p>To reset your password, click the link below:</p>\
+             <p><a href="' +
+            passwordResetLink +
+            '"><b>Reset Password</b></a></p>',
+        };
+        break;
+    }
 
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {

@@ -1,5 +1,4 @@
 "use client";
-// import { signIn } from "next-auth/react";
 import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa";
 import { LoginSchema } from "schemas";
@@ -8,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FC, useEffect } from "react";
-import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type LoginSchemaType = z.infer<typeof LoginSchema>;
 
@@ -30,7 +29,7 @@ const LoginForm = () => {
     if (errors.password) {
       toast.warning(errors.password.message);
     }
-  }, [errors.email, errors.password]);
+  }, [errors]);
 
   const onSubmit: SubmitHandler<LoginSchemaType> = async (data) => {
     console.log(data);
@@ -109,19 +108,19 @@ const LoginForm = () => {
           <div className="flex items-center justify-between">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
               Don’t have an account yet?{" "}
-              <a
-                href="#"
+              <Link
+                href="/auth/signup"
                 className="text-primary-600 dark:text-primary-500 font-medium hover:underline"
               >
                 Sign up
-              </a>
+              </Link>
             </p>
-            <a
-              href="#"
+            <Link
+              href="/auth/reset-password"
               className="text-primary-600 dark:text-primary-500 text-sm font-medium hover:underline"
             >
               Forgot password?
-            </a>
+            </Link>
           </div>
         </form>
       </div>

@@ -11,9 +11,9 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { env } from "~/env";
 import { db } from "~/server/db";
-import { sendVerificationRequest } from "./nodemailer";
+import { sendMailRequest } from "./nodemailer";
 import { LoginSchema } from "schemas";
-import { generateVerificationToken } from "~/lib/tokens";
+import { generateVerificationToken } from "~/lib/verification-token";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
       if (!existingUser) return false;
       if (!existingUser.emailVerified) {
         const token = await generateVerificationToken(existingUser.email!);
-        await sendVerificationRequest(existingUser.email!, token.token);
+        await sendMailRequest(existingUser.email!, token.token, "verification");
 
         return false;
       }
