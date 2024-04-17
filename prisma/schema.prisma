@@ -9,19 +9,6 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
-
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
-
-    @@index([name])
-}
-
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -58,7 +45,37 @@ model User {
     password      String?
     accounts      Account[]
     sessions      Session[]
-    posts         Post[]
+    organisations Members[]
+    ownedOrganisations Organisation[]
+}
+
+
+enum Role {
+    admin
+    user
+    manager
+}
+
+model Organisation {
+    id String @id @default(cuid())
+    name String
+    description String
+    bannerImg String
+    ownerId String
+    owner User @relation(fields: [ownerId], references: [id])
+    members Members[]
+    createdOn DateTime @default(now())
+    code String @unique  
+}
+
+model Members {
+    id String @id @default(cuid())
+    userId String
+    organisationId String
+    user User @relation(fields: [userId], references: [id])
+    organisation Organisation @relation(fields: [organisationId], references: [id])
+    role Role
+    joinedOn DateTime @default(now())
 }
 
 model VerificationToken {

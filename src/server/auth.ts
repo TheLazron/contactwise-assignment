@@ -34,6 +34,10 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
   },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+  },
   callbacks: {
     signIn: async ({ user, account }) => {
       if (account?.provider != "credentials") return true;
@@ -51,16 +55,33 @@ export const authOptions: NextAuthOptions = {
 
       return true;
     },
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        image: user.image,
-      },
-    }),
+    jwt: async ({ token, user, account, session }) => {
+      console.log("inside jwt callback", account);
+      console.log("inside jwt callback", session);
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
+      }
+      return token;
+    },
+    session: ({ session, token, user }) => {
+      console.log("inside session callback", token);
+      if (user) {
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          },
+        };
+      }
+      return session;
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [

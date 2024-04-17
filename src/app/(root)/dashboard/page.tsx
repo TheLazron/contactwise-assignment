@@ -10,13 +10,15 @@ async function getData(): Promise<z.infer<typeof OrgObjectSchema>[]> {
       orgName: "Organization 1",
       owner: "Owner 1",
       memberCount: 10,
-      bannerImg: "https://via.placeholder.com/150",
+      bannerImg:
+        "https://images.unsplash.com/photo-1712839398257-8f7ee9127998?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
       orgName: "Organization 2",
       owner: "Owner 2",
       memberCount: 20,
-      bannerImg: "https://via.placeholder.com/150",
+      bannerImg:
+        "https://images.unsplash.com/photo-1712839398257-8f7ee9127998?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   ];
 }
