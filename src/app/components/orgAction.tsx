@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { z } from "zod";
+import { useEffect } from "react";
 import Link from "next/link";
 
 import { cn } from "~/lib/cn";
@@ -15,46 +17,18 @@ import {
   navigationMenuTriggerStyle,
 } from "../components/ui/navigation-menu";
 import ModalWrapper from "./createOrgModal";
-
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-];
+import {
+  createOrganisationSchema,
+  joinOrganisationSchema,
+} from "schemas/organisationSchemas";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link2Icon, ReaderIcon, TargetIcon } from "@radix-ui/react-icons";
+import { api } from "~/trpc/react";
 
 export function NavigationMenuDemo() {
+  const [closeModal, setCloseModal] = React.useState(false);
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -63,14 +37,7 @@ export function NavigationMenuDemo() {
           <NavigationMenuContent>
             {/* <div className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]"> */}
             <div className="flex items-center p-2">
-              <h1 className="w-36 text-sm font-semibold ">
-                Enter Org Join Code:
-              </h1>
-              <input
-                type="text"
-                placeholder="Enter Organisation #"
-                className="input input-sm input-bordered  flex-1 "
-              />
+              <JoinNewOrgForm />
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
@@ -79,12 +46,8 @@ export function NavigationMenuDemo() {
             className={`${navigationMenuTriggerStyle()} bg-primary hover:bg-primary hover:bg-opacity-85`}
           >
             {/* <h1>Hello</h1> */}
-            <ModalWrapper btnText="Create Organisation">
-              <input
-                type="text"
-                placeholder="Type here"
-                className="input input-bordered w-full max-w-xs"
-              />
+            <ModalWrapper btnText="Create Organisation" closeModal={closeModal}>
+              <CreateNewOrgForm setCloseModal={setCloseModal} />
             </ModalWrapper>
           </NavigationMenuLink>
         </NavigationMenuItem>
@@ -92,6 +55,159 @@ export function NavigationMenuDemo() {
     </NavigationMenu>
   );
 }
+
+type CreateOrgSchemaType = z.infer<typeof createOrganisationSchema>;
+
+const JoinNewOrgForm = () => {
+  const [orgCode, setOrgCode] = React.useState<string>("");
+
+  const joinOrganisation = api.organisation.joinOrg.useMutation({});
+
+  const joinOrg = () => {
+    joinOrganisation.mutate({ code: orgCode });
+  };
+
+  useEffect(() => {
+    if (orgCode.length == 5) {
+      toast.promise(joinOrganisation.mutateAsync({ code: orgCode }), {
+        loading: "Joining Organisation...",
+        success: (data) => {
+          return `Successfully joined org ${data.name}`;
+        },
+        error:
+          "Failed to join organisation. Please check the code and try again.",
+      });
+    }
+  }, [orgCode]);
+
+  return (
+    <>
+      <h1 className="w-36 text-sm font-semibold ">Enter Org Join Code:</h1>
+      <input
+        onChange={(e) => setOrgCode(e.target.value)}
+        type="text"
+        placeholder="Enter Organisation #"
+        className="input input-sm input-bordered  flex-1 "
+      />
+    </>
+  );
+};
+
+const CreateNewOrgForm = ({
+  setCloseModal,
+}: {
+  setCloseModal: (closeModal: boolean) => void;
+}) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<CreateOrgSchemaType>({
+    resolver: zodResolver(createOrganisationSchema),
+  });
+
+  const createOrganisation = api.organisation.createOrg.useMutation({
+    onSuccess: () => {
+      setCloseModal(true);
+      toast.success("Organisation Created Successfully");
+    },
+    onError: (error) => {
+      setCloseModal(true);
+      toast.error(error.message);
+    },
+  });
+
+  const bannerImgUrl = watch("bannerImg");
+  const onSubmit: SubmitHandler<CreateOrgSchemaType> = async (data) => {
+    createOrganisation.mutate(data);
+    setCloseModal(false);
+  };
+
+  return (
+    <div>
+      <h1 className="w-full text-xl font-bold leading-tight tracking-tight text-accent">
+        Create New Organisation
+      </h1>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="mt-2 w-full  space-y-4 md:space-y-3"
+      >
+        <div>
+          <span className="mb-2 block text-sm font-medium text-primary-content">
+            Organisation Name
+          </span>
+          <label className="input flex w-full items-center gap-2 rounded-lg border border-accent bg-base-200 p-2.5 text-sm font-medium text-primary-content focus:border-primary focus:ring-primary sm:text-sm ">
+            <TargetIcon />
+            <input
+              {...register("name")}
+              type="text"
+              name="name"
+              id="name"
+              className="grow"
+              placeholder="Organisation Name"
+            />
+          </label>
+          {errors.name && <p className="text-error">{errors.name.message}</p>}
+        </div>
+        <div>
+          <span className="mb-2 block text-sm font-medium text-primary-content">
+            Organisation Description
+          </span>
+          <label className="input flex w-full items-center gap-2 rounded-lg border border-accent bg-base-200 p-2.5 text-sm font-medium text-primary-content focus:border-primary focus:ring-primary sm:text-sm ">
+            <ReaderIcon />
+            <input
+              {...register("description")}
+              type="text"
+              name="description"
+              id="description"
+              className="grow"
+              placeholder="Organisation Description"
+            />
+          </label>
+          {errors.description && (
+            <p className="text-error">{errors.description.message}</p>
+          )}
+        </div>
+        <div>
+          <span className="mb-2 block text-sm font-medium text-primary-content">
+            Organisation Banner
+          </span>
+          <div className="align-items-stretch flex gap-2">
+            <div className="md:4/5 sm:1/2 lg:w-3/5">
+              <label className="input  flex w-full items-center gap-2 rounded-lg border border-accent bg-base-200 p-2.5 text-sm font-medium text-primary-content focus:border-primary focus:ring-primary sm:text-sm ">
+                <Link2Icon />
+                <input
+                  {...register("bannerImg")}
+                  type="url"
+                  name="bannerImg"
+                  id="bannerImg"
+                  className="grow"
+                  placeholder="Organisation Banner URL"
+                />
+              </label>
+            </div>
+            <div className="my-0 flex h-12 flex-1 items-center justify-center  rounded-lg border border-accent bg-base-200 ">
+              {bannerImgUrl && (
+                <img
+                  src={bannerImgUrl}
+                  alt="Organisation Banner"
+                  className="h-full w-full object-cover"
+                />
+              )}
+            </div>
+          </div>
+          {errors.bannerImg && (
+            <p className="text-error">{errors.bannerImg.message}</p>
+          )}
+        </div>
+        <button type="submit" className="btn btn-primary w-full">
+          Create Organisation
+        </button>
+      </form>
+    </div>
+  );
+};
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,

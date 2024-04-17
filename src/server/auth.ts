@@ -56,8 +56,8 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     jwt: async ({ token, user, account, session }) => {
-      console.log("inside jwt callback", account);
-      console.log("inside jwt callback", session);
+      console.log("jwt user", user);
+      console.log("jwt account", account);
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -67,19 +67,19 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     session: ({ session, token, user }) => {
-      console.log("inside session callback", token);
-      if (user) {
-        return {
+      if (token) {
+        session = {
           ...session,
           user: {
             ...session.user,
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image,
+            id: token.id as string,
+            email: token.email,
+            name: token.name,
+            image: token.image as string,
           },
         };
       }
+      console.log("inside session callback", session);
       return session;
     },
   },

@@ -2,18 +2,34 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 "use client";
 
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 
 interface ModalWrapperProps {
   children: React.ReactNode;
   btnText: string;
+  closeModal: boolean;
 }
 
-const ModalWrapper: FC<ModalWrapperProps> = ({ btnText, children }) => {
+const ModalWrapper: FC<ModalWrapperProps> = ({
+  btnText,
+  children,
+  closeModal,
+}) => {
   const openModal = () => {
     const modal = document.getElementById("my_modal_1") as HTMLDialogElement;
     modal?.showModal();
   };
+
+  const close = () => {
+    const modal = document.getElementById("my_modal_1") as HTMLDialogElement;
+    modal?.close();
+  };
+
+  useEffect(() => {
+    if (closeModal) {
+      close();
+    }
+  }, [closeModal]);
 
   return (
     <>
