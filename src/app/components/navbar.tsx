@@ -13,7 +13,7 @@ const Navbar = async () => {
         <p className="text-lg font-semibold sm:text-2xl">Landscape</p>
       </div>
 
-      <div className="flex-none">
+      <div className="flex gap-2">
         <label className="swap swap-rotate mr-4">
           <input
             type="checkbox"
@@ -38,42 +38,65 @@ const Navbar = async () => {
           </svg>
         </label>
         {session ? (
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="avatar btn btn-circle btn-ghost"
-            >
-              <div className="w-10 rounded-full">
-                <img
-                  alt="Tailwind CSS Navbar component"
-                  src={session.user.image!}
-                />
+          <>
+            {authedNavLinks.map((link) => {
+              return (
+                <Link key={link.href} href={link.href}>
+                  <p className="btn btn-ghost btn-sm">{link.title}</p>
+                </Link>
+              );
+            })}
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="avatar btn btn-circle btn-ghost"
+              >
+                <div className="w-10 rounded-full">
+                  <img
+                    alt="Tailwind CSS Navbar component"
+                    src={session.user.image!}
+                  />
+                </div>
               </div>
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
+              >
+                <Link href="/api/auth/signout">Logout</Link>
+              </ul>
             </div>
-            <ul
-              tabIndex={0}
-              className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
-            >
-              <Link href="/api/auth/signout">Logout</Link>
-            </ul>
-          </div>
+          </>
         ) : (
-          <Navbuttons />
+          unAuthedNavLink.map((link) => {
+            return (
+              <Link key={link.href} href={link.href}>
+                <p className="btn btn-ghost btn-sm">{link.title}</p>
+              </Link>
+            );
+          })
         )}
       </div>
     </div>
   );
 };
 
-const Navbuttons = () => {
-  return (
-    <nav className="hidden sm:inline">
-      <Link href="/api/auth/signin" className="btn btn-neutral btn-md">
-        Sign In
-      </Link>
-    </nav>
-  );
-};
+const unAuthedNavLink = [
+  {
+    title: "Sign In",
+    href: "/api/auth/signin",
+  },
+];
+
+const authedNavLinks = [
+  {
+    title: "Home",
+    href: "/",
+  },
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+  },
+];
 
 export default Navbar;

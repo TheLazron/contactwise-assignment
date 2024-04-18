@@ -4,6 +4,9 @@ import { z } from "zod";
 import { NavigationMenuDemo } from "~/app/components/orgAction";
 import { getServerSession } from "next-auth";
 import { api } from "~/trpc/server";
+import { Organisation } from "@prisma/client";
+import { useState } from "react";
+import { authOptions } from "~/server/auth";
 
 // async function getData(): Promise<z.infer<typeof OrgObjectSchema>[]> {
 //   return [
@@ -25,9 +28,14 @@ import { api } from "~/trpc/server";
 // }
 
 const DashboardPage = async () => {
-  // const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const data = await api.organisation.getOrgs();
-  console.log("orgs Data", data);
+  const ownedOrgs = data.filter((org) => org.owner.id === session?.user.id);
+  const joinedOrgs = data.filter((org) => org.owner.id !== session?.user.id);
+  console.log("created orgs", ownedOrgs);
+  console.log("session user", session?.user);
+  console.log("joined orgs", joinedOrgs);
+
   // const data = await getData();
   return (
     <div className="container mt-24 flex min-h-screen flex-col  bg-base-100 bg-opacity-70 px-0 py-10">
@@ -39,13 +47,13 @@ const DashboardPage = async () => {
           <h1 className="lg:text-md mb-2 w-full text-[14px] font-bold leading-tight tracking-tight text-accent sm:text-[16px] md:text-[20px]">
             Created Organisations
           </h1>
-          {/* <DataTable columns={columns} data={data} /> */}
+          <DataTable columns={columns} data={ownedOrgs} />
         </div>
         <div>
           <h1 className=" lg:text-md mb-2 w-full text-[14px] font-bold leading-tight tracking-tight text-accent sm:text-[16px] md:text-[20px]">
             Joined Organisations
           </h1>
-          {/* <DataTable columns={columns} data={data} /> */}
+          <DataTable columns={columns} data={joinedOrgs} />
         </div>
       </div>
     </div>

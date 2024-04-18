@@ -17,6 +17,7 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(LoginSchema),
   });
@@ -97,6 +98,7 @@ const LoginForm = () => {
           <button
             className="btn btn-outline w-full"
             onClick={async () => {
+              reset();
               await signIn("google", {
                 callbackUrl: "/dashboard",
               });

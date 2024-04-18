@@ -120,15 +120,32 @@ export const organisationRouter = createTRPCRouter({
   getOrgs: protectedProcedure.query(async ({ ctx }) => {
     try {
       const { id: userId } = ctx.session.user;
-      const orgs = await ctx.db.members.findMany({
+      const orgs = await ctx.db.organisation.findMany({
         where: {
-          userId,
+          members: {
+            some: {
+              userId,
+            },
+          },
         },
         select: {
-          organisation: true,
+          id: true,
+          owner: true,
+          bannerImg: true,
+          name: true,
+          members: {
+            select: { userId: true },
+          },
         },
       });
-      return orgs;
+
+      type OrgWithMemberCount = typeof orgs & { memberCount: number };
+
+      const resOrgs = orgs.map((org) => {
+        return { ...org, memberCount: org.members.length };
+      });
+
+      return resOrgs.map((org) => org);
     } catch (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -136,4 +153,63 @@ export const organisationRouter = createTRPCRouter({
       });
     }
   }),
+  getOrg: protectedProcedure
+    .input(z.object({ orgId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { orgId } = input;
+      const { id: userId } = ctx.session.user;
+
+      try {
+        const org = await ctx.db.organisation.findUnique({
+          where: { id: orgId },
+          select: {
+            id: true,
+            owner: true,
+            bannerImg: true,
+            name: true,
+            description: true,
+            code: true,
+            members: {
+              select: { userId: true },
+            },
+          },
+        });
+
+        if (!org) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Organisation not found",
+          });
+        }
+
+        const member = org.members.find((member) => member.userId === userId);
+
+        if (!member) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You are not a member of this organisation",
+          });
+        }
+
+        const members = ctx.db.members.findMany({
+          where: {
+            organisationId: orgId,
+          },
+          select: {
+            user: true,
+            role: true,
+            joinedOn: true,
+          },
+        });
+
+        const data = { ...org, members };
+        return data;
+      } catch (error) {
+        console.log("error", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An error occurred while processing your request",
+        });
+      }
+    }),
 });

@@ -1,42 +1,61 @@
 "use client";
 
-import { CaretSortIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
+import { Organisation } from "@prisma/client";
+import {
+  CaretRightIcon,
+  CaretSortIcon,
+  DotsVerticalIcon,
+} from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 import { OrgObjectSchema } from "schemas";
+import { getOrganisationsResponseType } from "types";
 import { z } from "zod";
 
-export const columns: ColumnDef<z.infer<typeof OrgObjectSchema>>[] = [
+export const columns: ColumnDef<getOrganisationsResponseType>[] = [
+  // {
+  //   accessorKey: "bannerImg",
+  //   header: "",
+  //   cell: ({ row }) => {
+  //     const org = row.original;
+  //     return (
+  //       <img
+  //         src={org.bannerImg}
+  //         alt="org banner"
+  //         className="h-8 w-12 rounded-md object-cover"
+  //       />
+  //     );
+  //   },
+  // },
   {
-    accessorKey: "bannerImg",
-    header: "",
+    accessorKey: "name",
+    header: "Organisation",
     cell: ({ row }) => {
-      const org = row.original;
-      return (
-        <img
-          src={org.bannerImg}
-          alt="org banner"
-          className="h-8 w-8 rounded-md"
-        />
-      );
-    },
-  },
-  {
-    accessorKey: "orgName",
-    header: ({ column }) => {
-      return (
-        <button
-          className="btn"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Organisation Name
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </button>
-      );
+      return <p className="font-semibold">{row.original.name}</p>;
     },
   },
   {
     accessorKey: "owner",
     header: "Owner",
+    cell: ({ row }) => {
+      return (
+        <>
+          <div className="flex items-center gap-2">
+            <div className="avatar">
+              <div className=" w-8 rounded-badge">
+                <img
+                  alt="owner_profile"
+                  className="h-full w-full"
+                  src={row.original.owner.image!}
+                />
+              </div>
+            </div>
+
+            <p>{row.original.owner.name}</p>
+          </div>
+        </>
+      );
+    },
   },
   {
     accessorKey: "memberCount",
@@ -70,6 +89,21 @@ export const columns: ColumnDef<z.infer<typeof OrgObjectSchema>>[] = [
             </li>
           </ul>
         </div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    header: "View Org",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return (
+        <Link
+          href={`/organisation/${row.original.id}`}
+          className="btn btn-circle btn-primary btn-sm"
+        >
+          <CaretRightIcon />
+        </Link>
       );
     },
   },

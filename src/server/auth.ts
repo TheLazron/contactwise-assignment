@@ -55,9 +55,7 @@ export const authOptions: NextAuthOptions = {
 
       return true;
     },
-    jwt: async ({ token, user, account, session }) => {
-      console.log("jwt user", user);
-      console.log("jwt account", account);
+    jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -68,18 +66,8 @@ export const authOptions: NextAuthOptions = {
     },
     session: ({ session, token, user }) => {
       if (token) {
-        session = {
-          ...session,
-          user: {
-            ...session.user,
-            id: token.id as string,
-            email: token.email,
-            name: token.name,
-            image: token.image as string,
-          },
-        };
+        session.user.id = token.id as string;
       }
-      console.log("inside session callback", session);
       return session;
     },
   },
@@ -102,9 +90,7 @@ export const authOptions: NextAuthOptions = {
             where: { email },
           });
           if (!user) return null;
-          console.log({ user });
           const isValidPass = await bcrypt.compare(password, user.password!);
-          console.log({ isValidPass });
           if (!isValidPass) return null;
           return user;
         }
