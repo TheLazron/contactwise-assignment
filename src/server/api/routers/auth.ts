@@ -42,6 +42,7 @@ export const authRouter = createTRPCRouter({
         data: {
           ...user,
           password: hashedPass,
+          image: "https://source.boringavatars.com/beam/120/" + user.name,
         },
       });
 

@@ -1,11 +1,28 @@
-/* eslint-disable @next/next/no-img-element */
+// /* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { membersTableDataType } from "types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "../ui/dropDownMenu";
+import {
+  DropdownMenuGroup,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import AdminOrgActions from "../adminOrgActions";
 
-export const columns: ColumnDef<membersTableDataType>[] = [
+const columns: ColumnDef<membersTableDataType>[] = [
   {
     accessorKey: "image",
     header: "Profile",
@@ -65,30 +82,33 @@ export const columns: ColumnDef<membersTableDataType>[] = [
     header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const member = row.original;
 
-      return (
-        <div className="dropdown dropdown-end dropdown-left">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn-sm m-1 flex items-center justify-center"
-          >
-            <DotsVerticalIcon className="h-4 " />
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-          >
-            <li>
-              <a>Item 1</a>
-            </li>
-            <li>
-              <a>Item 2</a>
-            </li>
-          </ul>
-        </div>
-      );
+      return <AdminOrgActions memberId={member.id} />;
+      // return (
+      //   <div className="dropdown dropdown-end dropdown-left">
+      //     <div
+      //       tabIndex={0}
+      //       role="button"
+      //       className="btn-sm m-1 flex items-center justify-center"
+      //     >
+      //       <DotsVerticalIcon className="h-4 " />
+      //     </div>
+      //     <ul
+      //       tabIndex={0}
+      //       className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
+      //     >
+      //       <li>
+      //         <a>Item 1</a>
+      //       </li>
+      //       <li>
+      //         <a>Item 2</a>
+      //       </li>
+      //     </ul>
+      //   </div>
+      // );
     },
   },
 ];
+
+export default columns;

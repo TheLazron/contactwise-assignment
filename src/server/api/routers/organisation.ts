@@ -8,6 +8,7 @@ import { z } from "zod";
 import generateOrgCode from "~/lib/generateCode";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   elevatedProcedure,
   protectedProcedure,
@@ -93,37 +94,6 @@ export const organisationRouter = createTRPCRouter({
         return org;
       });
     }),
-  deleteOrg: protectedProcedure
-    .input(z.object({ orgId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const { orgId } = input;
-      const { id: userId } = ctx.session.user;
-      const whereClause = { id: orgId };
-
-      try {
-        const org = await ctx.db.organisation.findFirst({ where: whereClause });
-
-        if (!org) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Organisation not found",
-          });
-        }
-        if (org.ownerId !== userId) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You are not the owner of this organisation",
-          });
-        }
-        await ctx.db.organisation.delete({ where: whereClause });
-        return org;
-      } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while processing your request",
-        });
-      }
-    }),
   getOrgs: protectedProcedure.query(async ({ ctx }) => {
     try {
       const { id: userId } = ctx.session.user;
@@ -203,6 +173,7 @@ export const organisationRouter = createTRPCRouter({
             organisationId: orgId,
           },
           select: {
+            id: true,
             user: true,
             role: true,
             joinedOn: true,
@@ -257,6 +228,32 @@ export const organisationRouter = createTRPCRouter({
           });
         });
         return updatedOrg;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An error occurred while processing your request",
+        });
+      }
+    }),
+  deleteOrganisation: adminProcedure
+    .input(z.object({ orgId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { orgId } = input;
+      const { id: userId } = ctx.session.user;
+      const whereClause = { id: orgId };
+      try {
+        const org = await ctx.db.organisation.findFirst({ where: whereClause });
+        if (!org) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Organisation not found",
+          });
+        }
+        await ctx.db.$transaction([
+          ctx.db.members.deleteMany({ where: { organisationId: orgId } }),
+          ctx.db.organisation.delete({ where: whereClause }),
+        ]);
+        return org;
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

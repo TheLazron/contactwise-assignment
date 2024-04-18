@@ -96,11 +96,10 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 
-const isAuthed = t.middleware(async ({ ctx, next, getRawInput }) => {
+const isAuthed = t.middleware(async ({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  console.log("input from isAuthedMiddleware", await getRawInput());
   return next({
     ctx: {
       // infers the `session` as non-nullable
@@ -117,7 +116,6 @@ const isManager = t.middleware(async ({ ctx, next, getRawInput }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   const organisationId = (await getRawInput()) as { orgId: string };
-  console.log("organisationId", organisationId.orgId);
   const member = await ctx.db.members.findFirst({
     where: {
       userId: ctx.session.user.id,
@@ -142,3 +140,34 @@ const isManager = t.middleware(async ({ ctx, next, getRawInput }) => {
 });
 
 export const elevatedProcedure = t.procedure.use(isManager);
+
+const isAdmin = t.middleware(async ({ ctx, next, getRawInput }) => {
+  console.log("inside isAdmin middleware");
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  const organisationId = (await getRawInput()) as { orgId: string };
+  const member = await ctx.db.members.findFirst({
+    where: {
+      userId: ctx.session.user.id,
+      organisationId: organisationId.orgId,
+    },
+  });
+  console.log("member details", member);
+  console.log("orgDetails details", organisationId);
+  if (!member || member.role !== "admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You are not authorized",
+    });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+export const adminProcedure = t.procedure.use(isAdmin);

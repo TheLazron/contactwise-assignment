@@ -27,5 +27,6 @@ export interface membersTableDataType {
   };
   role: $Enums.Role;
   joinedOn: Date;
+  id: string;
 }
 [];
