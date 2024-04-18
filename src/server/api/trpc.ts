@@ -96,10 +96,11 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 
-const isAuthed = t.middleware(({ ctx, next }) => {
+const isAuthed = t.middleware(async ({ ctx, next, getRawInput }) => {
   if (!ctx.session || !ctx.session.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+  console.log("input from isAuthedMiddleware", await getRawInput());
   return next({
     ctx: {
       // infers the `session` as non-nullable
@@ -109,3 +110,35 @@ const isAuthed = t.middleware(({ ctx, next }) => {
 });
 
 export const protectedProcedure = t.procedure.use(isAuthed);
+
+const isManager = t.middleware(async ({ ctx, next, getRawInput }) => {
+  console.log("inside isManager middleware");
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  const organisationId = (await getRawInput()) as { orgId: string };
+  console.log("organisationId", organisationId.orgId);
+  const member = await ctx.db.members.findFirst({
+    where: {
+      userId: ctx.session.user.id,
+      organisationId: organisationId.orgId,
+    },
+  });
+  console.log("member details", member);
+  console.log("orgDetails details", organisationId);
+  if (!member || (member.role !== "admin" && member.role !== "manager")) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You are not authorized",
+    });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+export const elevatedProcedure = t.procedure.use(isManager);

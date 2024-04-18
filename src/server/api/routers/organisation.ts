@@ -1,10 +1,17 @@
 import { TRPCError } from "@trpc/server";
 import { join } from "path";
-import { createOrganisationSchema } from "schemas/organisationSchemas";
+import {
+  createOrganisationSchema,
+  editOrganisationSchema,
+} from "schemas/organisationSchemas";
 import { z } from "zod";
 import generateOrgCode from "~/lib/generateCode";
 
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  elevatedProcedure,
+  protectedProcedure,
+} from "~/server/api/trpc";
 
 export const organisationRouter = createTRPCRouter({
   createOrg: protectedProcedure
@@ -206,6 +213,51 @@ export const organisationRouter = createTRPCRouter({
         return data;
       } catch (error) {
         console.log("error", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An error occurred while processing your request",
+        });
+      }
+    }),
+  testRole: elevatedProcedure
+    .input(z.object({ orgId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      console.log("you are calling it cause you are either admin or manager");
+      return true;
+    }),
+  editOrg: elevatedProcedure
+    .input(editOrganisationSchema)
+    .mutation(async ({ ctx, input }) => {
+      //edit org using prisma transaction
+      const { id: userId } = ctx.session.user;
+      const { orgId, name, description, bannerImg } = input;
+      const whereClause = { id: orgId };
+      try {
+        const org = await ctx.db.organisation.findFirst({ where: whereClause });
+        if (!org) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Organisation not found",
+          });
+        }
+        if (org.ownerId !== userId) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You are not the owner of this organisation",
+          });
+        }
+        const updatedOrg = await ctx.db.$transaction(async (prisma) => {
+          return prisma.organisation.update({
+            where: whereClause,
+            data: {
+              name,
+              description,
+              bannerImg,
+            },
+          });
+        });
+        return updatedOrg;
+      } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "An error occurred while processing your request",

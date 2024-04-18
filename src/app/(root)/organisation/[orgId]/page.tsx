@@ -1,4 +1,4 @@
-import { Pencil1Icon } from "@radix-ui/react-icons";
+import EditOrgModal from "~/app/components/editOrgModal";
 import { columns } from "~/app/components/membersTable/columns";
 import { MembersTable } from "~/app/components/membersTable/dataTable";
 import { api } from "~/trpc/server";
@@ -21,9 +21,14 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
         <div className="card-body z-20 text-base-100 ">
           <div className="card-title justify-between">
             <h1 className="">{data.name}</h1>
-            <button className="btn btn-circle btn-sm">
-              <Pencil1Icon />
-            </button>
+            <EditOrgModal
+              orgId={params.orgId}
+              initialData={{
+                bannerImg: data.bannerImg,
+                description: data.description,
+                name: data.name,
+              }}
+            />
           </div>
           <p className="italic">{data.description}</p>
           <div className="card-actions justify-end">
