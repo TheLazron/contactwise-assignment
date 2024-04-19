@@ -97,7 +97,7 @@ const columns: ColumnDef<membersTableDataType>[] = [
               </button>
             </ManagePermissionModal>
           ) : (
-            <span className="badge">Action Unavailable</span>
+            <span className="badge badge-md">Action Unavailable</span>
           )}
         </>
       );
@@ -109,32 +109,21 @@ const columns: ColumnDef<membersTableDataType>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const data = row.original;
-
+      const hasRights =
+        data.currentUser.permissions.includes("CHANGE_ROLES") ||
+        data.currentUser.permissions.includes("KICK_USERS");
+      const isNotAdmin = data.role != "admin";
+      const isNotSelf = data.currentUser.id != data.id;
       return (
-        <AdminOrgActions memberId={data.id} currentUser={data.currentUser} />
+        <>
+          {hasRights && isNotAdmin && isNotSelf && (
+            <AdminOrgActions
+              memberId={data.id}
+              currentUser={data.currentUser}
+            />
+          )}
+        </>
       );
-      // return (
-      //   <div className="dropdown dropdown-end dropdown-left">
-      //     <div
-      //       tabIndex={0}
-      //       role="button"
-      //       className="btn-sm m-1 flex items-center justify-center"
-      //     >
-      //       <DotsVerticalIcon className="h-4 " />
-      //     </div>
-      //     <ul
-      //       tabIndex={0}
-      //       className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-      //     >
-      //       <li>
-      //         <a>Item 1</a>
-      //       </li>
-      //       <li>
-      //         <a>Item 2</a>
-      //       </li>
-      //     </ul>
-      //   </div>
-      // );
     },
   },
 ];

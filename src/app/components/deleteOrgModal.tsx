@@ -30,17 +30,18 @@ type EditOrgSchemaType = z.infer<typeof editOrganisationSchema>;
 const DeleteOrgModal: FC<ModalWrapperProps> = ({ children, orgId }) => {
   const router = useRouter();
 
-  const deleteOrganisation = api.organisation.deleteOrganisation.useMutation({
-    onSuccess: () => {
-      closeModal();
-      router.push("/dashboard");
-      toast.success("Organisation Deleted Successfully");
-    },
-    onError: (error) => {
-      closeModal();
-      toast.error(error.message);
-    },
-  });
+  // const deleteOrganisation = api.organisation.deleteOrganisation.useMutation({
+  //   onSuccess: () => {
+  //     closeModal();
+  //     router.push("/dashboard");
+  //     toast.success("Organisation Deleted Successfully");
+  //   },
+  //   onError: (error) => {
+  //     closeModal();
+  //     toast.error(error.message);
+  //   },
+  // });
+  const deleteOrganisation = api.organisation.deleteOrganisation.useMutation();
 
   const openModal = () => {
     const modal = document.getElementById("deleteModal") as HTMLDialogElement;
@@ -68,7 +69,21 @@ const DeleteOrgModal: FC<ModalWrapperProps> = ({ children, orgId }) => {
           <div className="mt-4 flex justify-end space-x-2">
             <button
               onClick={() => {
-                deleteOrganisation.mutate({ orgId: orgId });
+                toast.promise(
+                  deleteOrganisation.mutateAsync({ orgId: orgId }),
+                  {
+                    loading: "Deleting Organisation",
+                    success(data) {
+                      closeModal();
+                      router.push("/dashboard");
+                      return "Organisation Deleted Successfully";
+                    },
+                    error(error) {
+                      closeModal();
+                      return `Error: ${(error as Error).message}`;
+                    },
+                  },
+                );
               }}
               className="btn btn-error btn-sm"
             >

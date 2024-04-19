@@ -76,7 +76,8 @@ export const memeberRouter = createTRPCRouter({
             member.organisationId,
             userId,
             "KICK_USERS",
-          ))
+          )) ||
+          member.role === "admin"
         ) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -115,7 +116,8 @@ export const memeberRouter = createTRPCRouter({
             member.organisationId,
             userId,
             "CHANGE_ROLES",
-          ))
+          )) ||
+          member.role === "admin"
         ) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -165,7 +167,11 @@ export const memeberRouter = createTRPCRouter({
             organisationId: member.organisationId,
           },
         });
-        if (!userMemberObject || userMemberObject.role !== "admin") {
+        if (
+          !userMemberObject ||
+          userMemberObject.role !== "admin" ||
+          member.role === "admin"
+        ) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: "You are not authorized",

@@ -29,6 +29,7 @@ export interface membersTableDataType {
   };
   role: $Enums.Role;
   currentUser: {
+    id: string;
     role: Role;
     permissions: Permissions[];
   };

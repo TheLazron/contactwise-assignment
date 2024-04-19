@@ -16,6 +16,7 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
   const columnsData = members.map((m) => ({
     ...m,
     currentUser: {
+      id: memberObject.id,
       role: memberObject.role,
       permissions: memberObject.permissions,
     },
@@ -60,7 +61,7 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
             </div>
             {memberObject.role === "admin" ? (
               <DeleteOrgModal orgId={params.orgId}>
-                <button className="btn btn-error btn-sm rounded-xl">
+                <button className="btn btn-error btn-sm rounded-xl text-base-100">
                   <TrashIcon className=" text-base-100" />
                   Delete
                 </button>
@@ -71,8 +72,14 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
       </div>
       <div className="card card-compact flex-1 shadow-xl">
         <div className="card-body">
-          <div className="card-title justify-between">
+          <div className="card-title items-end justify-between">
             <h1 className="text-4xl text-primary-content">Members</h1>
+            <h2 className="text-lg text-primary-content">
+              Your Role:{" "}
+              <span className="text-secondary">
+                {memberObject.role.toUpperCase()}
+              </span>
+            </h2>
           </div>
           <MembersTable columns={columns} data={columnsData} />
         </div>

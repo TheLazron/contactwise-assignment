@@ -34,16 +34,17 @@ const ManagePermissionModal: FC<ManagePermissionModalProps> = ({
     modal?.close();
   };
 
-  const changePermissions = api.member.changePermissions.useMutation({
-    onSuccess: () => {
-      closeModal();
-      toast.success("Changes made successfully");
-    },
-    onError: (error) => {
-      closeModal();
-      toast.error(error.message);
-    },
-  });
+  const changePermissions = api.member.changePermissions.useMutation({});
+  //   const changePermissions = api.member.changePermissions.useMutation({
+  //     onSuccess: () => {
+  //       closeModal();
+  //       toast.success("Changes made successfully");
+  //     },
+  //     onError: (error) => {
+  //       closeModal();
+  //       toast.error(error.message);
+  //     },
+  //   });
 
   const { register, handleSubmit, setValue, watch } =
     useForm<ManagePermissionModalSchemaType>({
@@ -65,8 +66,14 @@ const ManagePermissionModal: FC<ManagePermissionModalProps> = ({
         .filter(([key, value]) => value)
         .map(([key]) => key) as Permissions[],
     };
-    console.log(changePermissionsData);
-    changePermissions.mutate(changePermissionsData);
+    toast.promise(changePermissions.mutateAsync(changePermissionsData), {
+      loading: "Saving changes...",
+      success(data) {
+        closeModal();
+        return "Changes made successfully";
+      },
+      error: "Failed to save changes",
+    });
   };
 
   return (

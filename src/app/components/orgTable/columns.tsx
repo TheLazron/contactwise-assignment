@@ -5,12 +5,14 @@ import {
   CaretRightIcon,
   CaretSortIcon,
   DotsVerticalIcon,
+  TrashIcon,
 } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { OrgObjectSchema } from "schemas";
 import { getOrganisationsResponseType } from "types";
 import { z } from "zod";
+import DeleteOrgModal from "../deleteOrgModal";
 
 export const columns: ColumnDef<getOrganisationsResponseType>[] = [
   // {
@@ -66,7 +68,7 @@ export const columns: ColumnDef<getOrganisationsResponseType>[] = [
     header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const data = row.original;
 
       return (
         <div className="dropdown dropdown-end dropdown-left">
@@ -82,10 +84,12 @@ export const columns: ColumnDef<getOrganisationsResponseType>[] = [
             className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
           >
             <li>
-              <a>Item 1</a>
-            </li>
-            <li>
-              <a>Item 2</a>
+              <DeleteOrgModal orgId={data.id}>
+                <>
+                  <TrashIcon />
+                  Delete
+                </>
+              </DeleteOrgModal>
             </li>
           </ul>
         </div>

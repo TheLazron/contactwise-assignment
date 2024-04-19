@@ -48,10 +48,7 @@ const AdminOrgActions: FC<MemberActionsProps> = ({ memberId, currentUser }) => {
   });
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        asChild
-        disabled={currentUser.permissions.length === 0}
-      >
+      <DropdownMenuTrigger asChild>
         <div
           tabIndex={0}
           role="button"
