@@ -1,3 +1,5 @@
+import { Permissions, Role } from "@prisma/client";
+
 export interface getOrganisationsResponseType {
   id: string;
   memberCount: number;
@@ -26,7 +28,12 @@ export interface membersTableDataType {
     password: string | null;
   };
   role: $Enums.Role;
+  currentUser: {
+    role: Role;
+    permissions: Permissions[];
+  };
   joinedOn: Date;
   id: string;
+  permissions: $Enums.Permissions[];
 }
 [];

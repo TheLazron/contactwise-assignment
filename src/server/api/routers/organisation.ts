@@ -1,3 +1,4 @@
+import { Permissions, PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { join } from "path";
 import {
@@ -7,12 +8,26 @@ import {
 import { z } from "zod";
 import generateOrgCode from "~/lib/generateCode";
 
-import {
-  adminProcedure,
-  createTRPCRouter,
-  elevatedProcedure,
-  protectedProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+
+const checkForPermissions = async (
+  db: PrismaClient,
+  organisationId: string,
+  userId: string,
+  requiredPermission: Permissions,
+): Promise<boolean> => {
+  const member = await db.members.findFirst({
+    where: {
+      userId: userId,
+      organisationId: organisationId,
+    },
+  });
+
+  if (!member?.permissions?.includes(requiredPermission)) {
+    return false;
+  }
+  return true;
+};
 
 export const organisationRouter = createTRPCRouter({
   createOrg: protectedProcedure
@@ -39,6 +54,7 @@ export const organisationRouter = createTRPCRouter({
               userId: id,
               organisationId: org.id,
               role: "admin",
+              permissions: ["CHANGE_ROLES", "EDIT_ORG", "KICK_USERS"],
             },
           });
 
@@ -47,10 +63,12 @@ export const organisationRouter = createTRPCRouter({
 
         return newOrg;
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while processing your request",
-        });
+        throw error instanceof TRPCError
+          ? error
+          : new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "An error occurred while processing your request",
+            });
       }
     }),
   joinOrg: protectedProcedure
@@ -88,6 +106,7 @@ export const organisationRouter = createTRPCRouter({
             userId,
             organisationId: org.id,
             role: "user",
+            permissions: [],
           },
         });
 
@@ -124,10 +143,12 @@ export const organisationRouter = createTRPCRouter({
 
       return resOrgs.map((org) => org);
     } catch (error) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An error occurred while processing your request",
-      });
+      throw error instanceof TRPCError
+        ? error
+        : new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An error occurred while processing your request",
+          });
     }
   }),
   getOrg: protectedProcedure
@@ -141,7 +162,12 @@ export const organisationRouter = createTRPCRouter({
           where: { id: orgId },
           select: {
             id: true,
-            owner: true,
+            owner: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             bannerImg: true,
             name: true,
             description: true,
@@ -177,29 +203,24 @@ export const organisationRouter = createTRPCRouter({
             user: true,
             role: true,
             joinedOn: true,
+            permissions: true,
           },
         });
 
         const data = { ...org, members };
         return data;
       } catch (error) {
-        console.log("error", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while processing your request",
-        });
+        throw error instanceof TRPCError
+          ? error
+          : new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "An error occurred while processing your request",
+            });
       }
     }),
-  testRole: elevatedProcedure
-    .input(z.object({ orgId: z.string() }))
-    .query(async ({ ctx, input }) => {
-      console.log("you are calling it cause you are either admin or manager");
-      return true;
-    }),
-  editOrg: elevatedProcedure
+  editOrg: protectedProcedure
     .input(editOrganisationSchema)
     .mutation(async ({ ctx, input }) => {
-      //edit org using prisma transaction
       const { id: userId } = ctx.session.user;
       const { orgId, name, description, bannerImg } = input;
       const whereClause = { id: orgId };
@@ -211,37 +232,51 @@ export const organisationRouter = createTRPCRouter({
             message: "Organisation not found",
           });
         }
-        if (org.ownerId !== userId) {
+        if (!(await checkForPermissions(ctx.db, orgId, userId, "EDIT_ORG"))) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: "You are not the owner of this organisation",
+            message: "You are not authroized",
           });
         }
-        const updatedOrg = await ctx.db.$transaction(async (prisma) => {
-          return prisma.organisation.update({
-            where: whereClause,
-            data: {
-              name,
-              description,
-              bannerImg,
-            },
-          });
+        const updatedOrg = await ctx.db.organisation.update({
+          where: whereClause,
+          data: {
+            name,
+            description,
+            bannerImg,
+          },
         });
         return updatedOrg;
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while processing your request",
-        });
+        throw error instanceof TRPCError
+          ? error
+          : new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "An error occurred while processing your request",
+            });
       }
     }),
-  deleteOrganisation: adminProcedure
+  deleteOrganisation: protectedProcedure
     .input(z.object({ orgId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const { orgId } = input;
-      const { id: userId } = ctx.session.user;
-      const whereClause = { id: orgId };
       try {
+        const { orgId } = input;
+        const { id: userId } = ctx.session.user;
+
+        const member = await ctx.db.members.findFirst({
+          where: {
+            userId: userId,
+            organisationId: orgId,
+          },
+        });
+        if (!member || member.role !== "admin") {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You are not authorized",
+          });
+        }
+
+        const whereClause = { id: orgId };
         const org = await ctx.db.organisation.findFirst({ where: whereClause });
         if (!org) {
           throw new TRPCError({
@@ -255,10 +290,12 @@ export const organisationRouter = createTRPCRouter({
         ]);
         return org;
       } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while processing your request",
-        });
+        throw error instanceof TRPCError
+          ? error
+          : new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "An error occurred while processing your request",
+            });
       }
     }),
 });

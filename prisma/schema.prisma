@@ -47,6 +47,12 @@ enum Role {
     manager
 }
 
+enum  Permissions {
+    EDIT_ORG
+    KICK_USERS
+    CHANGE_ROLES
+}
+
 model Organisation {
     id String @id @default(cuid())
     name String
@@ -67,6 +73,7 @@ model Members {
     organisation Organisation @relation(fields: [organisationId], references: [id])
     role Role
     joinedOn DateTime @default(now())
+    permissions Permissions[]
 
     @@unique([userId, organisationId])
 }

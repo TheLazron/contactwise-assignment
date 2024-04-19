@@ -54,10 +54,7 @@ const DeleteOrgModal: FC<ModalWrapperProps> = ({ children, orgId }) => {
 
   return (
     <>
-      <div onClick={openModal}>
-        {/* <Pencil1Icon /> */}
-        {children}
-      </div>
+      <div onClick={openModal}>{children}</div>
       <dialog id="deleteModal" className="modal">
         <div className="modal-box flex flex-col gap-2">
           <div>

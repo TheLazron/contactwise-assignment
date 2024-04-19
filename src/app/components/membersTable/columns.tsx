@@ -1,7 +1,7 @@
 // /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { DotsVerticalIcon } from "@radix-ui/react-icons";
+import { DotsVerticalIcon, GearIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { membersTableDataType } from "types";
 import {
@@ -20,19 +20,20 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import AdminOrgActions from "../adminOrgActions";
+import AdminOrgActions from "../memberActions";
+import ManagePermissionModal from "../managePermissionModal";
 
 const columns: ColumnDef<membersTableDataType>[] = [
   {
     accessorKey: "image",
     header: "Profile",
     cell: ({ row }) => {
-      const member = row.original;
+      const data = row.original;
       return (
         <div className="avatar">
           <div className="h-10 w-10 rounded-badge ring-2 ring-primary">
             <img
-              src={member.user.image!}
+              src={data.user.image!}
               alt="org banner"
               className=" object-cover"
             />
@@ -78,13 +79,40 @@ const columns: ColumnDef<membersTableDataType>[] = [
     },
   },
   {
+    id: "mangePermissions",
+    header: "Manage Permissions",
+    cell: ({ row }) => {
+      const data = row.original;
+
+      return (
+        <>
+          {data.currentUser.role == "admin" && data.role != "admin" ? (
+            <ManagePermissionModal
+              initialPermissions={data.permissions}
+              memberId={data.id}
+            >
+              <button className="btn btn-primary btn-sm">
+                <GearIcon />
+                Manage Permissions
+              </button>
+            </ManagePermissionModal>
+          ) : (
+            <span className="badge">Action Unavailable</span>
+          )}
+        </>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const member = row.original;
+      const data = row.original;
 
-      return <AdminOrgActions memberId={member.id} />;
+      return (
+        <AdminOrgActions memberId={data.id} currentUser={data.currentUser} />
+      );
       // return (
       //   <div className="dropdown dropdown-end dropdown-left">
       //     <div

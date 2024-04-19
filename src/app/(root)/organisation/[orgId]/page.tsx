@@ -1,5 +1,6 @@
 import { TrashIcon } from "@radix-ui/react-icons";
 import { getServerSession } from "next-auth";
+import { membersTableDataType } from "types";
 import DeleteOrgModal from "~/app/components/deleteOrgModal";
 import EditOrgModal from "~/app/components/editOrgModal";
 import columns from "~/app/components/membersTable/columns";
@@ -10,11 +11,15 @@ import { api } from "~/trpc/server";
 const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
   const memberObject = await api.member.getRole({ orgId: params.orgId });
   const data = await api.organisation.getOrg({ orgId: params.orgId });
-  if (memberObject.role === "admin") {
-  }
 
-  let members = await data.members;
-  members = members.map((m) => m);
+  const members = await data.members;
+  const columnsData = members.map((m) => ({
+    ...m,
+    currentUser: {
+      role: memberObject.role,
+      permissions: memberObject.permissions,
+    },
+  }));
   return (
     <div className="container mt-24 flex min-h-screen flex-col gap-4  bg-base-100 bg-opacity-70 px-0 py-10">
       <div className="card card-compact relative h-44 w-full overflow-hidden bg-base-100 shadow-xl ">
@@ -29,8 +34,7 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
         <div className="card-body z-20 text-base-100 ">
           <div className="card-title justify-between">
             <h1 className="">{data.name}</h1>
-            {memberObject.role === "admin" ||
-            memberObject.role === "manager" ? (
+            {memberObject.permissions.includes("EDIT_ORG") ? (
               <EditOrgModal
                 orgId={params.orgId}
                 initialData={{
@@ -43,10 +47,17 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
           </div>
           <p className="italic">{data.description}</p>
           <div className="card-actions items-end justify-between">
-            <p>
-              Member Count:{" "}
-              <span className="font-bold text-primary">{members.length}</span>
-            </p>
+            <div className="flex items-center justify-start gap-2">
+              <p>
+                Member Count:{" "}
+                <span className="font-bold text-primary">{members.length}</span>
+              </p>{" "}
+              |{" "}
+              <p>
+                Joining Code:{" "}
+                <span className="font-bold text-primary">{data.code}</span>
+              </p>
+            </div>
             {memberObject.role === "admin" ? (
               <DeleteOrgModal orgId={params.orgId}>
                 <button className="btn btn-error btn-sm rounded-xl">
@@ -63,7 +74,7 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
           <div className="card-title justify-between">
             <h1 className="text-4xl text-primary-content">Members</h1>
           </div>
-          <MembersTable columns={columns} data={members} />
+          <MembersTable columns={columns} data={columnsData} />
         </div>
       </div>
     </div>

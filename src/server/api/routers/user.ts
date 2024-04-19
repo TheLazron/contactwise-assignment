@@ -1,8 +1,4 @@
-import {
-  createTRPCRouter,
-  elevatedProcedure,
-  protectedProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 import { z } from "zod";
 import { editProfileSchema } from "schemas/userSchemas";
