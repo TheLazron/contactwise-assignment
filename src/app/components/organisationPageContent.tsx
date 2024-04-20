@@ -39,7 +39,7 @@ const OrganisationPageContent = ({ orgId }: { orgId: string }) => {
           <img
             className="h-full w-full object-cover"
             src={data.bannerImg}
-            alt="Shoes"
+            alt="Banner Image"
           />
         </div>
         <div className="absolute h-full w-full bg-black bg-opacity-55"></div>

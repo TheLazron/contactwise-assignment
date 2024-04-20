@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropDownMenu";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
-import ThemeToggler from "./ui/themeToggler";
 import { useSession } from "next-auth/react";
 const Navbar = () => {
   //get client session nexy auth
@@ -25,7 +24,6 @@ const Navbar = () => {
       </div>
 
       <div className="flex gap-2">
-        <ThemeToggler />
         {session ? (
           <>
             {authedNavLinks.map((link) => {

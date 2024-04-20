@@ -48,8 +48,7 @@ const config = {
   },
   plugins: [require("tailwindcss-animate"), require("daisyui")],
   daisyui: {
-    themes: ["bumblebee", "luxury", "sunset"],
-    darkTheme: "sunset",
+    themes: ["bumblebee"],
     base: true,
     styled: true,
     utils: true,

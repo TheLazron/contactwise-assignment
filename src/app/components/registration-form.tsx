@@ -119,7 +119,7 @@ const RegisterForm = () => {
                 href="/auth/signin"
                 className="text-primary-600 dark:text-primary-500 font-medium hover:underline"
               >
-                Sign In
+                Register
               </Link>
             </p>
           </div>

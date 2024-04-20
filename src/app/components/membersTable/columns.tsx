@@ -93,7 +93,6 @@ const columns: ColumnDef<membersTableDataType>[] = [
             >
               <button className="btn btn-primary btn-sm">
                 <GearIcon />
-                Manage Permissions
               </button>
             </ManagePermissionModal>
           ) : (

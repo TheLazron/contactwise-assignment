@@ -33,7 +33,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ initialData }) => {
   const editProfile = api.user.editProfile.useMutation({
     onSuccess: () => {
       closeModal();
-      toast.success("Editions Made Successfully");
+      toast.success("Data saved successfully!");
     },
     onError: (error) => {
       closeModal();
@@ -138,7 +138,7 @@ const EditProfileModal: FC<EditProfileModalProps> = ({ initialData }) => {
                 )}
               </div>
               <button type="submit" className="btn btn-primary w-full">
-                Edit Details
+                Save Changes
               </button>
             </form>
           </div>
