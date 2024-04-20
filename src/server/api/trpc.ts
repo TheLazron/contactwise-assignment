@@ -8,11 +8,13 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import superjson from "superjson";
+import superjson, { SuperJSON } from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { appRouter } from "./root";
+import { createServerSideHelpers } from "@trpc/react-query/server";
 
 /**
  * 1. CONTEXT

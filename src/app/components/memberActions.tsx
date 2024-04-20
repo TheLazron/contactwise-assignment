@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import ManagePermissionModal from "./managePermissionModal";
 import { Permissions, Role } from "@prisma/client";
 import { FC } from "react";
+import { useRouter } from "next/navigation";
 
 interface MemberActionsProps {
   memberId: string;
@@ -30,22 +31,9 @@ interface MemberActionsProps {
 }
 ("");
 const AdminOrgActions: FC<MemberActionsProps> = ({ memberId, currentUser }) => {
-  const removeUser = api.member.removeMember.useMutation({
-    onSuccess: () => {
-      toast.success("User removed successfully");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-  const changeRole = api.member.changeRole.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Role changed to ${data.role.toUpperCase()}`);
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const router = useRouter();
+  const removeUser = api.member.removeMember.useMutation({});
+  const changeRole = api.member.changeRole.useMutation({});
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -63,6 +51,13 @@ const AdminOrgActions: FC<MemberActionsProps> = ({ memberId, currentUser }) => {
           {currentUser.permissions.includes("KICK_USERS") && (
             <DropdownMenuItem
               onClick={() => {
+                toast.promise(removeUser.mutateAsync({ memberId }), {
+                  loading: "Removing user...",
+                  success: "User removed successfully",
+                  error(error) {
+                    return `Error: ${(error as Error).message}`;
+                  },
+                });
                 removeUser.mutate({ memberId: memberId });
               }}
             >
@@ -78,17 +73,38 @@ const AdminOrgActions: FC<MemberActionsProps> = ({ memberId, currentUser }) => {
                   <DropdownMenuSubContent>
                     <DropdownMenuItem
                       onClick={() => {
-                        changeRole.mutate({
-                          memberId: memberId,
-                          role: "manager",
-                        });
+                        toast.promise(
+                          changeRole.mutateAsync({ memberId, role: "manager" }),
+                          {
+                            loading: "Changing role...",
+                            success(data) {
+                              router.refresh();
+                              return `Role changed to Manager`;
+                            },
+                            error(error) {
+                              return `Error: ${(error as Error).message}`;
+                            },
+                          },
+                        );
                       }}
                     >
                       Manager
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        changeRole.mutate({ memberId: memberId, role: "user" });
+                        toast.promise(
+                          changeRole.mutateAsync({ memberId, role: "user" }),
+                          {
+                            loading: "Changing role...",
+                            success(data) {
+                              router.refresh();
+                              return `Role changed to User`;
+                            },
+                            error(error) {
+                              return `Error: ${(error as Error).message}`;
+                            },
+                          },
+                        );
                       }}
                     >
                       User

@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link2Icon, ReaderIcon, TargetIcon } from "@radix-ui/react-icons";
 import { api } from "~/trpc/react";
+import { useRouter } from "next/navigation";
 
 export function NavigationMenuDemo() {
   const [closeModal, setCloseModal] = React.useState(false);
@@ -60,7 +61,7 @@ type CreateOrgSchemaType = z.infer<typeof createOrganisationSchema>;
 
 const JoinNewOrgForm = () => {
   const [orgCode, setOrgCode] = React.useState<string>("");
-
+  const utils = api.useUtils();
   const joinOrganisation = api.organisation.joinOrg.useMutation({});
 
   const joinOrg = () => {
@@ -71,7 +72,8 @@ const JoinNewOrgForm = () => {
     if (orgCode.length == 5) {
       toast.promise(joinOrganisation.mutateAsync({ code: orgCode }), {
         loading: "Joining Organisation...",
-        success: (data) => {
+        success: async (data) => {
+          await utils.organisation.getOrgs.invalidate();
           return `Successfully joined org ${data.name}`;
         },
         error:
@@ -106,21 +108,26 @@ const CreateNewOrgForm = ({
   } = useForm<CreateOrgSchemaType>({
     resolver: zodResolver(createOrganisationSchema),
   });
-
-  const createOrganisation = api.organisation.createOrg.useMutation({
-    onSuccess: () => {
-      setCloseModal(true);
-      toast.success("Organisation Created Successfully");
-    },
-    onError: (error) => {
-      setCloseModal(true);
-      toast.error(error.message);
-    },
-  });
+  const router = useRouter();
+  const utils = api.useUtils();
+  const createOrganisation = api.organisation.createOrg.useMutation();
 
   const bannerImgUrl = watch("bannerImg");
   const onSubmit: SubmitHandler<CreateOrgSchemaType> = async (data) => {
-    createOrganisation.mutate(data);
+    // createOrganisation.mutate(data);
+    toast.promise(createOrganisation.mutateAsync(data), {
+      loading: "Creating Organisation...",
+      success: async (data) => {
+        await utils.organisation.getOrgs.invalidate();
+        setCloseModal(true);
+        router.refresh();
+        return `Successfully created org ${data.name}`;
+      },
+      error: (error) => {
+        setCloseModal(true);
+        return (error as Error).message;
+      },
+    });
     setCloseModal(false);
   };
 

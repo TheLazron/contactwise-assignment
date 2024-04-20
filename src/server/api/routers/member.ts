@@ -117,7 +117,8 @@ export const memeberRouter = createTRPCRouter({
             userId,
             "CHANGE_ROLES",
           )) ||
-          member.role === "admin"
+          member.role === "admin" ||
+          role === "admin"
         ) {
           throw new TRPCError({
             code: "FORBIDDEN",
