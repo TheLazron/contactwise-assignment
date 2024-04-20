@@ -34,48 +34,57 @@ export const sendMailRequest = async (
 ) => {
   const verificationLink = `http://localhost:3000/auth/verify-email?token=${token}`;
   const passwordResetLink = `http://localhost:3000/auth/new-password?token=${token}`;
-  try {
-    let mailOptions = {};
-    switch (type) {
-      case "verification":
-        mailOptions = {
-          from: "Landscape <teddybearlaughs@gmail.com>",
-          to: email,
-          subject: "Landscape: Confirm your email address ✉",
-          html:
-            '<p>To complete registration, verify your email by clicking the link below:</p>\
-             <p><a href="' +
-            verificationLink +
-            '"><b>Verify Email</b></a></p>',
-        };
 
-        break;
-      case "password-reset":
-        mailOptions = {
-          from: "Landscape <teddybearlaughs@gmail.com>",
-          to: email,
-          subject: "Landscape: Reset your password ✉",
-          html:
-            '<p>To reset your password, click the link below:</p>\
-             <p><a href="' +
-            passwordResetLink +
-            '"><b>Reset Password</b></a></p>',
-        };
-        break;
-    }
-
-    await new Promise((resolve, reject) => {
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log("error sendig mail", error);
-          reject(error);
-        } else {
-          console.log("Email sent: " + info.response);
-          resolve(info);
-        }
-      });
+  await new Promise((resolve, reject) => {
+    // verify connection configuration
+    transporter.verify(function (error, success) {
+      if (error) {
+        console.log(error);
+        reject(error);
+      } else {
+        console.log("Server is ready to take our messages");
+        resolve(success);
+      }
     });
-  } catch (error) {
-    console.log("sending mail error", { error });
+  });
+
+  let mailOptions = {};
+  switch (type) {
+    case "verification":
+      mailOptions = {
+        from: "Landscape <teddybearlaughs@gmail.com>",
+        to: email,
+        subject: "Landscape: Confirm your email address ✉",
+        html:
+          '<p>To complete registration, verify your email by clicking the link below:</p>\
+             <p><a href="' +
+          verificationLink +
+          '"><b>Verify Email</b></a></p>',
+      };
+
+      break;
+    case "password-reset":
+      mailOptions = {
+        from: "Landscape <teddybearlaughs@gmail.com>",
+        to: email,
+        subject: "Landscape: Reset your password ✉",
+        html:
+          '<p>To reset your password, click the link below:</p>\
+             <p><a href="' +
+          passwordResetLink +
+          '"><b>Reset Password</b></a></p>',
+      };
+      break;
   }
+  await new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log("error sending mail", error);
+        reject(error);
+      } else {
+        console.log("Email sent: " + info.response);
+        resolve(info);
+      }
+    });
+  });
 };
