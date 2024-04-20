@@ -1,4 +1,4 @@
-import { DotsVerticalIcon } from "@radix-ui/react-icons";
+import { CircleBackslashIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +31,7 @@ interface MemberActionsProps {
 }
 ("");
 const AdminOrgActions: FC<MemberActionsProps> = ({ memberId, currentUser }) => {
-  const router = useRouter();
+  const utils = api.useUtils();
   const removeUser = api.member.removeMember.useMutation({});
   const changeRole = api.member.changeRole.useMutation({});
   return (
@@ -45,76 +45,74 @@ const AdminOrgActions: FC<MemberActionsProps> = ({ memberId, currentUser }) => {
           <DotsVerticalIcon className="h-4 " />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-36 bg-base-100">
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          {currentUser.permissions.includes("KICK_USERS") && (
+        {currentUser.permissions.includes("KICK_USERS") && (
+          <DropdownMenuItem
+            onClick={() => {
+              toast.promise(removeUser.mutateAsync({ memberId }), {
+                loading: "Removing user...",
+                success: "User removed successfully",
+                error(error) {
+                  return `Error: ${(error as Error).message}`;
+                },
+                finally: async () => {
+                  await utils.organisation.getOrg.invalidate();
+                },
+              });
+            }}
+          >
+            <p className="text-red-500">Kick User</p>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        {currentUser.permissions.includes("CHANGE_ROLES") && (
+          <DropdownMenuGroup>
+            <DropdownMenuItem disabled>Change Role</DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                toast.promise(removeUser.mutateAsync({ memberId }), {
-                  loading: "Removing user...",
-                  success: "User removed successfully",
-                  error(error) {
-                    return `Error: ${(error as Error).message}`;
+                toast.promise(
+                  changeRole.mutateAsync({ memberId, role: "manager" }),
+                  {
+                    loading: "Changing role...",
+                    success(data) {
+                      return `Role changed to Manager`;
+                    },
+                    error(error) {
+                      return `Error: ${(error as Error).message}`;
+                    },
+                    finally: async () => {
+                      await utils.organisation.getOrg.invalidate();
+                    },
                   },
-                });
-                removeUser.mutate({ memberId: memberId });
+                );
               }}
             >
-              Kick User
+              Manager
             </DropdownMenuItem>
-          )}
-
-          <DropdownMenuSub>
-            {currentUser.permissions.includes("CHANGE_ROLES") && (
-              <>
-                <DropdownMenuSubTrigger>Change Role</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        toast.promise(
-                          changeRole.mutateAsync({ memberId, role: "manager" }),
-                          {
-                            loading: "Changing role...",
-                            success(data) {
-                              router.refresh();
-                              return `Role changed to Manager`;
-                            },
-                            error(error) {
-                              return `Error: ${(error as Error).message}`;
-                            },
-                          },
-                        );
-                      }}
-                    >
-                      Manager
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        toast.promise(
-                          changeRole.mutateAsync({ memberId, role: "user" }),
-                          {
-                            loading: "Changing role...",
-                            success(data) {
-                              router.refresh();
-                              return `Role changed to User`;
-                            },
-                            error(error) {
-                              return `Error: ${(error as Error).message}`;
-                            },
-                          },
-                        );
-                      }}
-                    >
-                      User
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </>
-            )}
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={() => {
+                toast.promise(
+                  changeRole.mutateAsync({ memberId, role: "user" }),
+                  {
+                    loading: "Changing role...",
+                    success(data) {
+                      return `Role changed to User`;
+                    },
+                    error(error) {
+                      return `Error: ${(error as Error).message}`;
+                    },
+                    finally: async () => {
+                      await utils.organisation.getOrg.invalidate();
+                    },
+                  },
+                );
+              }}
+            >
+              User
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

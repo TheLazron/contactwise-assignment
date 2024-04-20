@@ -114,18 +114,18 @@ const CreateNewOrgForm = ({
 
   const bannerImgUrl = watch("bannerImg");
   const onSubmit: SubmitHandler<CreateOrgSchemaType> = async (data) => {
-    // createOrganisation.mutate(data);
     toast.promise(createOrganisation.mutateAsync(data), {
       loading: "Creating Organisation...",
-      success: async (data) => {
-        await utils.organisation.getOrgs.invalidate();
+      success: (data) => {
         setCloseModal(true);
-        router.refresh();
         return `Successfully created org ${data.name}`;
       },
       error: (error) => {
         setCloseModal(true);
         return (error as Error).message;
+      },
+      finally: async () => {
+        await utils.organisation.getOrgs.invalidate();
       },
     });
     setCloseModal(false);

@@ -31,16 +31,8 @@ interface ModalWrapperProps {
 type EditOrgSchemaType = z.infer<typeof editOrganisationSchema>;
 
 const EditOrgModal: FC<ModalWrapperProps> = ({ orgId, initialData }) => {
-  const editOrganisation = api.organisation.editOrg.useMutation({
-    onSuccess: () => {
-      closeModal();
-      toast.success("Editions Made Successfully");
-    },
-    onError: (error) => {
-      closeModal();
-      toast.error(error.message);
-    },
-  });
+  const editOrganisation = api.organisation.editOrg.useMutation();
+  const utils = api.useUtils();
 
   const openModal = () => {
     const modal = document.getElementById("my_modal_1") as HTMLDialogElement;
@@ -64,9 +56,22 @@ const EditOrgModal: FC<ModalWrapperProps> = ({ orgId, initialData }) => {
 
   const bannerImgUrl = watch("bannerImg");
 
-  const onSubmit: SubmitHandler<EditOrgSchemaType> = (data) => {
-    console.log("data", data);
-    editOrganisation.mutate({ ...data, orgId: orgId });
+  const onSubmit: SubmitHandler<EditOrgSchemaType> = async (data) => {
+    const promise = editOrganisation.mutateAsync({ ...data, orgId: orgId });
+    toast.promise(promise, {
+      loading: "Making Changes...",
+      success: (data) => {
+        closeModal();
+        return `${data.name} has been updated successfully!`;
+      },
+      finally: async () => {
+        await utils.organisation.getOrg.invalidate();
+      },
+      error(error) {
+        closeModal();
+        return `Error: ${(error as Error).message}`;
+      },
+    });
   };
 
   return (

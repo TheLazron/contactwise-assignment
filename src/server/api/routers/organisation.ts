@@ -194,7 +194,7 @@ export const organisationRouter = createTRPCRouter({
           });
         }
 
-        const members = ctx.db.members.findMany({
+        const members = await ctx.db.members.findMany({
           where: {
             organisationId: orgId,
           },
