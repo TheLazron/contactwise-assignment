@@ -88,28 +88,36 @@ const ManagePermissionModal: FC<ManagePermissionModalProps> = ({
             <p className="text-sm text-secondary-content">
               Manage Permissions for the user.
             </p>
-            <div>
+            <div className="mt-4">
               <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                  <input
-                    type="checkbox"
-                    {...register("permissions.EDIT_ORG")}
-                  />
-                  <label htmlFor="checkbox1">EDIT_ORG</label>
-                </div>
-                <div>
-                  <input
-                    type="checkbox"
-                    {...register("permissions.KICK_USERS")}
-                  />
-                  <label htmlFor="checkbox2">KICK_USERS</label>
-                </div>
-                <div>
-                  <input
-                    type="checkbox"
-                    {...register("permissions.CHANGE_ROLES")}
-                  />
-                  <label htmlFor="checkbox3">CHANGE_ROLES</label>
+                <div className=" mb-2 flex w-full flex-col justify-between sm:flex-row">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      className=" checkbox-primary checkbox"
+                      {...register("permissions.EDIT_ORG")}
+                    />
+                    <span className="label-text font-semibold">EDIT ORG</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      id="checkbox2"
+                      type="checkbox"
+                      className=" checkbox-primary checkbox"
+                      {...register("permissions.KICK_USERS")}
+                    />
+                    <span className="label-text font-semibold">KICK USERS</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      className=" checkbox-primary checkbox"
+                      {...register("permissions.CHANGE_ROLES")}
+                    />
+                    <span className="label-text font-semibold">
+                      CHANGE ROLES
+                    </span>
+                  </div>
                 </div>
                 <button type="submit" className="btn btn-primary w-full">
                   Save Changes
