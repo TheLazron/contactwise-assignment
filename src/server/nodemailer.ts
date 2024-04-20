@@ -32,8 +32,8 @@ export const sendMailRequest = async (
   token: string,
   type: EmailType,
 ) => {
-  const verificationLink = `http://localhost:3000/auth/verify-email?token=${token}`;
-  const passwordResetLink = `http://localhost:3000/auth/new-password?token=${token}`;
+  const verificationLink = `https://landscp.netlify.app/auth/verify-email?token=${token}`;
+  const passwordResetLink = `https://landscp.netlify.app/auth/new-password?token=${token}`;
 
   await new Promise((resolve, reject) => {
     // verify connection configuration
