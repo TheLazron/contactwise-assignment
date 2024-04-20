@@ -14,7 +14,6 @@ const OrganisationPageContent = ({ orgId }: { orgId: string }) => {
   const [columnsData, setColumnsData] = useState<membersTableDataType[]>([]);
   const { data: memberObject } = api.member.getRole.useQuery({ orgId });
   const { data } = api.organisation.getOrg.useQuery({ orgId });
-  const [membersCount, setMembersCount] = useState<number>(0);
   if (!data || !memberObject) {
     notFound();
   }
@@ -32,27 +31,6 @@ const OrganisationPageContent = ({ orgId }: { orgId: string }) => {
       setColumnsData(columnsData);
     }
   }, [data]);
-
-  //   useEffect(() => {
-  //     if (data) {
-  //       data.members
-  //         .then((members) => {
-  //           const columnsData = members.map((m) => ({
-  //             ...m,
-  //             currentUser: {
-  //               id: memberObject.id,
-  //               role: memberObject.role,
-  //               permissions: memberObject.permissions,
-  //             },
-  //           }));
-  //           setMembersCount(members.length);
-  //           setColumnsData(columnsData);
-  //         })
-  //         .catch((err) => {
-  //           console.error(err);
-  //         });
-  //     }
-  //   });
 
   return (
     <>

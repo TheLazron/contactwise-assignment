@@ -2,8 +2,10 @@ import Link from "next/link";
 import Navbar from "../components/navbar";
 import Image from "next/image";
 import { api } from "~/trpc/server";
+import { getServerAuthSession } from "~/server/auth";
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerAuthSession();
   return (
     <>
       <main className="flex flex-col items-center justify-center">
@@ -23,17 +25,16 @@ export default function Home() {
               made easy.
             </h1>
             <p className="sm:text-md mb-8 text-[12px] leading-relaxed lg:text-lg">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Qui
-              laborum quasi, incidunt dolore iste nostrum cupiditate voluptas?
-              Laborum, voluptas natus?
+              Landscape is your one-stop solution for managing users and their
+              permissions
             </p>
 
             <div className="flex justify-center">
               <Link
-                href="/api/auth/signin"
+                href={`${session ? "/dashboard" : "/auth/signin"}`}
                 className="btn btn-outline btn-secondary btn-md sm:btn-lg sm:btn-wide"
               >
-                Sign In
+                {session ? "Dashboard" : "Get Started"}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
