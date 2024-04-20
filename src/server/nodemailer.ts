@@ -14,6 +14,19 @@ const transporter = nodemailer.createTransport({
 
 type EmailType = "verification" | "password-reset";
 
+await new Promise((resolve, reject) => {
+  // verify connection configuration
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.log(error);
+      reject(error);
+    } else {
+      console.log("Server is ready to take our messages");
+      resolve(success);
+    }
+  });
+});
+
 export const sendMailRequest = async (
   email: string,
   token: string,
@@ -51,12 +64,16 @@ export const sendMailRequest = async (
         break;
     }
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log("error sendig mail", error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
+    await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log("error sendig mail", error);
+          reject(error);
+        } else {
+          console.log("Email sent: " + info.response);
+          resolve(info);
+        }
+      });
     });
   } catch (error) {
     console.log("sending mail error", { error });
