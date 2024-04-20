@@ -12,17 +12,6 @@ import { api } from "~/trpc/react";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import DashboardTables from "~/app/components/dashboardTables";
 
-export async function getServerProps() {
-  const helper = await createSSRHelper();
-  await helper.organisation.getOrgs.prefetch();
-
-  return {
-    props: {
-      trpcState: helper.dehydrate(),
-    },
-  };
-}
-
 const DashboardPage = async () => {
   const helpers = await createSSRHelper();
   await helpers.organisation.getOrgs.prefetch();

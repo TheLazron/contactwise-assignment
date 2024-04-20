@@ -5,18 +5,22 @@ import { columns } from "./orgTable/columns";
 import { useSession } from "next-auth/react";
 import { authOptions } from "~/server/auth";
 import { DataTable } from "./orgTable/dataTable";
+import { getOrganisationsResponseType } from "types";
 
 const DashboardTables = () => {
   const { data: session, status, update } = useSession();
   console.log("session", session);
 
   const res = api.organisation.getOrgs.useQuery();
-  const ownedOrgs = res?.data?.filter(
-    (org) => org.owner.id === session?.user.id,
-  );
-  const joinedOrgs = res.data?.filter(
-    (org) => org.owner.id !== session?.user.id,
-  );
+
+  const orgs = res?.data?.map((org) => ({
+    ...org,
+    currentUserId: session!.user.id,
+  }));
+
+  const ownedOrgs = orgs?.filter((org) => org.owner.id === session!.user.id);
+  const joinedOrgs = orgs?.filter((org) => org.owner.id !== session!.user.id);
+
   return (
     <div className="mt-12 flex w-full flex-col gap-3">
       <div>

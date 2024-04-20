@@ -1,15 +1,28 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
 
 const VerifytokenPage = () => {
-  // const a = api.auth.verifyToken();
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-full w-full items-center justify-center">
+          <span className="loading loading-infinity loading-lg mt-6 text-secondary"></span>
+        </div>
+      }
+    >
+      <RequestVerificationComponent />
+    </Suspense>
+  );
+};
+
+const RequestVerificationComponent = () => {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const token = searchParams.get("token");
+  const router = useRouter();
 
   useEffect(() => {
     if (!token) {

@@ -1,6 +1,7 @@
+"use client";
+
 import { getToken } from "next-auth/jwt";
 import Link from "next/link";
-import { getServerAuthSession } from "~/server/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +10,10 @@ import {
 } from "./ui/dropDownMenu";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import ThemeToggler from "./ui/themeToggler";
-const Navbar = async () => {
-  const session = await getServerAuthSession();
+import { useSession } from "next-auth/react";
+const Navbar = () => {
+  //get client session nexy auth
+  const { data: session } = useSession();
 
   return (
     <div className="glass navbar w-full justify-self-start rounded-md shadow-lg ">

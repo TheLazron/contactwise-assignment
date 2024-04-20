@@ -1,6 +1,7 @@
 import { Permissions, Role } from "@prisma/client";
 
 export interface getOrganisationsResponseType {
+  currentUserId: string;
   id: string;
   memberCount: number;
   name: string;

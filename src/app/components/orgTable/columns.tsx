@@ -69,8 +69,7 @@ export const columns: ColumnDef<getOrganisationsResponseType>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const data = row.original;
-
-      return (
+      return data.currentUserId === data.owner.id ? (
         <div className="dropdown dropdown-end dropdown-left">
           <div
             tabIndex={0}
@@ -93,7 +92,7 @@ export const columns: ColumnDef<getOrganisationsResponseType>[] = [
             </li>
           </ul>
         </div>
-      );
+      ) : null;
     },
   },
   {
