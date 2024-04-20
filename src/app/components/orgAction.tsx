@@ -72,12 +72,14 @@ const JoinNewOrgForm = () => {
     if (orgCode.length == 5) {
       toast.promise(joinOrganisation.mutateAsync({ code: orgCode }), {
         loading: "Joining Organisation...",
-        success: async (data) => {
-          await utils.organisation.getOrgs.invalidate();
+        success: (data) => {
           return `Successfully joined org ${data.name}`;
         },
         error:
           "Failed to join organisation. Please check the code and try again.",
+        finally: async () => {
+          await utils.organisation.getOrgs.invalidate();
+        },
       });
     }
   }, [orgCode]);
