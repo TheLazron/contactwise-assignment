@@ -1,7 +1,7 @@
 "use client";
 
 import { Permissions } from "@prisma/client";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   changePermissisonsRequestSchema,
@@ -35,16 +35,6 @@ const ManagePermissionModal: FC<ManagePermissionModalProps> = ({
   };
 
   const changePermissions = api.member.changePermissions.useMutation({});
-  //   const changePermissions = api.member.changePermissions.useMutation({
-  //     onSuccess: () => {
-  //       closeModal();
-  //       toast.success("Changes made successfully");
-  //     },
-  //     onError: (error) => {
-  //       closeModal();
-  //       toast.error(error.message);
-  //     },
-  //   });
 
   const { register, handleSubmit, setValue, watch } =
     useForm<ManagePermissionModalSchemaType>({
@@ -56,6 +46,14 @@ const ManagePermissionModal: FC<ManagePermissionModalProps> = ({
         },
       },
     });
+
+  useEffect(() => {
+    setValue("permissions", {
+      EDIT_ORG: initialPermissions.includes("EDIT_ORG"),
+      KICK_USERS: initialPermissions.includes("KICK_USERS"),
+      CHANGE_ROLES: initialPermissions.includes("CHANGE_ROLES"),
+    });
+  }, [initialPermissions, setValue]);
 
   const onSubmit: SubmitHandler<ManagePermissionModalSchemaType> = (data) => {
     const changePermissionsData: z.infer<
