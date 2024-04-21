@@ -110,7 +110,7 @@ const RegisterForm = () => {
           </div>
 
           <button type="submit" className="btn btn-accent w-full">
-            Sign In
+            Sign Up
           </button>
           <div className="flex items-center justify-between">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
@@ -119,7 +119,7 @@ const RegisterForm = () => {
                 href="/auth/signin"
                 className="text-primary-600 dark:text-primary-500 font-medium hover:underline"
               >
-                Register
+                Sign In
               </Link>
             </p>
           </div>

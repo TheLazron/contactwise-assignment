@@ -37,7 +37,15 @@ const ModalWrapper: FC<ModalWrapperProps> = ({
         {btnText}
       </h1>
       <dialog id="my_modal_1" className="modal">
-        <div className="modal-box">{children}</div>
+        <div className="modal-box">
+          <button
+            onClick={close}
+            className="btn btn-circle btn-primary btn-sm absolute right-2 top-2"
+          >
+            ✕
+          </button>
+          {children}
+        </div>
       </dialog>
     </>
   );

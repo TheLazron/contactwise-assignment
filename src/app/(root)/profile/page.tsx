@@ -1,8 +1,15 @@
 import { Pencil1Icon } from "@radix-ui/react-icons";
 import EditProfileModal from "~/app/components/editProfileModal";
 import { api } from "~/trpc/server";
+import { redirect } from "next/navigation";
+import { getServerAuthSession } from "~/server/auth";
 
 const ProfilePage = async () => {
+  const session = await getServerAuthSession();
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
+
   const data = await api.user.getProfileDetails();
   return (
     <div className="container mt-24 flex min-h-screen flex-col gap-4  bg-base-100 bg-opacity-70 px-0 py-10">

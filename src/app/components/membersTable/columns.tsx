@@ -91,7 +91,7 @@ const columns: ColumnDef<membersTableDataType>[] = [
               initialPermissions={data.permissions}
               memberId={data.id}
             >
-              <button className="btn btn-primary btn-sm">
+              <button className="btn btn-primary btn-sm w-full">
                 <GearIcon />
               </button>
             </ManagePermissionModal>

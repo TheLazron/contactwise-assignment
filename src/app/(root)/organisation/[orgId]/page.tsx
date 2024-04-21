@@ -7,12 +7,15 @@ import EditOrgModal from "~/app/components/editOrgModal";
 import columns from "~/app/components/membersTable/columns";
 import { MembersTable } from "~/app/components/membersTable/dataTable";
 import OrganisationPageContent from "~/app/components/organisationPageContent";
-import { authOptions } from "~/server/auth";
+import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api, createSSRHelper } from "~/trpc/server";
+import { redirect } from "next/navigation";
 
 const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
-  const memberObject = await api.member.getRole({ orgId: params.orgId });
-  const data = await api.organisation.getOrg({ orgId: params.orgId });
+  const session = await getServerAuthSession();
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
 
   const helpers = await createSSRHelper();
   await helpers.organisation.getOrg.prefetch({ orgId: params.orgId });

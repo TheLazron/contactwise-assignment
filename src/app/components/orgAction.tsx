@@ -16,7 +16,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "../components/ui/navigation-menu";
-import ModalWrapper from "./createOrgModal";
+import ModalWrapper from "./ui/modalWrapper";
 import {
   createOrganisationSchema,
   joinOrganisationSchema,

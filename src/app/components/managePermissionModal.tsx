@@ -81,6 +81,12 @@ const ManagePermissionModal: FC<ManagePermissionModalProps> = ({
       <div onClick={openModal}>{children}</div>
       <dialog id={`${memberId}`} className="modal">
         <div className="modal-box flex flex-col gap-2">
+          <button
+            onClick={closeModal}
+            className="btn btn-circle btn-primary btn-sm absolute right-2 top-2"
+          >
+            ✕
+          </button>
           <div>
             <h1 className="w-full text-xl font-bold leading-tight tracking-tight text-accent">
               Manage User Permission

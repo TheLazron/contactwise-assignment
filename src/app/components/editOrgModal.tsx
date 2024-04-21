@@ -81,9 +81,15 @@ const EditOrgModal: FC<ModalWrapperProps> = ({ orgId, initialData }) => {
       </button>
       <dialog id="my_modal_1" className="modal">
         <div className="modal-box">
+          <button
+            onClick={closeModal}
+            className="btn btn-circle btn-primary btn-sm absolute right-2 top-2"
+          >
+            ✕
+          </button>
           <div>
             <h1 className="w-full text-xl font-bold leading-tight tracking-tight text-accent">
-              Create New Organisation
+              Edit Organisation
             </h1>
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -158,7 +164,7 @@ const EditOrgModal: FC<ModalWrapperProps> = ({ orgId, initialData }) => {
                 {errors.bannerImg && <p className="text-error">{}</p>}
               </div>
               <button type="submit" className="btn btn-primary w-full">
-                Edit Details
+                Make Changes
               </button>
             </form>
           </div>

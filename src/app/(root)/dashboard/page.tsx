@@ -7,12 +7,17 @@ import { createSSRHelper } from "~/trpc/server";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { Organisation } from "@prisma/client";
 import { useState } from "react";
-import { authOptions } from "~/server/auth";
+import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/react";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import DashboardTables from "~/app/components/dashboardTables";
+import { redirect } from "next/navigation";
 
 const DashboardPage = async () => {
+  const session = await getServerAuthSession();
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
   const helpers = await createSSRHelper();
   await helpers.organisation.getOrgs.prefetch();
   const dehydrateState = dehydrate(helpers.queryClient);

@@ -1,4 +1,4 @@
-import ResetPassForm from "~/app/components/resetpass-form";
+import ResetPassForm from "~/app/components/resetPassForm";
 
 const LoginPage = () => {
   return <ResetPassForm />;

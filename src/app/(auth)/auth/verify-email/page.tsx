@@ -27,6 +27,7 @@ const RequestVerificationComponent = () => {
   useEffect(() => {
     if (!token) {
       toast.error("Token not found");
+      router.push("/");
       return;
     }
     verifyToken.mutate({ token });

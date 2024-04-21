@@ -1,8 +1,16 @@
-export default function AuthLayout({
+import { redirect } from "next/navigation";
+import { getServerAuthSession } from "~/server/auth";
+
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerAuthSession();
+  if (session?.user) {
+    redirect("/dashboard");
+  }
+
   return (
     <>
       <section className="flex w-full ">
