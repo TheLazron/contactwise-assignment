@@ -36,7 +36,6 @@ export function NavigationMenuDemo() {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Join Organisation</NavigationMenuTrigger>
           <NavigationMenuContent>
-            {/* <div className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]"> */}
             <div className="flex items-center p-2">
               <JoinNewOrgForm />
             </div>
@@ -46,7 +45,6 @@ export function NavigationMenuDemo() {
           <NavigationMenuLink
             className={`${navigationMenuTriggerStyle()} bg-primary hover:bg-primary hover:bg-opacity-85`}
           >
-            {/* <h1>Hello</h1> */}
             <ModalWrapper btnText="Create Organisation" closeModal={closeModal}>
               <CreateNewOrgForm setCloseModal={setCloseModal} />
             </ModalWrapper>

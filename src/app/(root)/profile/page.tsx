@@ -17,12 +17,12 @@ const ProfilePage = async () => {
         <div className="absolute z-0 h-full w-full bg-polka-pattern"></div>
         <div className="absolute h-full w-full bg-black bg-opacity-5"></div>
         <div className="icenter card-body z-20 justify-center text-base-100 ">
-          <div className="flex items-center gap-5">
+          <div className="flex flex-col items-center gap-5 md:flex-row">
             <div className="avatar relative">
               <EditProfileModal
                 initialData={{ image: data.image, name: data.name }}
               />
-              <div className="h-24 w-24 rounded-full ring-2 ring-primary">
+              <div className="h-16 w-16 rounded-full ring-2 ring-primary md:h-24 md:w-24">
                 <img
                   src={data.image}
                   alt="user profile page"
@@ -31,7 +31,7 @@ const ProfilePage = async () => {
               </div>
             </div>
             <div>
-              <h1 className="text-5xl font-semibold text-accent">
+              <h1 className="text-2xl font-semibold text-accent md:text-5xl">
                 {data.name}
               </h1>
             </div>

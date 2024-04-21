@@ -60,13 +60,12 @@ const OrganisationPageContent = ({ orgId }: { orgId: string }) => {
           <p className="italic">{data.description}</p>
           <div className="card-actions items-end justify-between">
             <div className="flex items-center justify-start gap-2">
-              <p>
+              <p className=" hidden sm:inline">
                 Member Count:{" "}
                 <span className="font-bold text-primary">
                   {data.members.length}
                 </span>
               </p>{" "}
-              |{" "}
               <p>
                 Joining Code:{" "}
                 <span className="font-bold text-primary">{data.code}</span>
@@ -86,13 +85,17 @@ const OrganisationPageContent = ({ orgId }: { orgId: string }) => {
       <div className="card card-compact flex-1 shadow-xl">
         <div className="card-body">
           <div className="card-title items-end justify-between">
-            <h1 className="text-4xl text-primary-content">Members</h1>
-            <h2 className="text-lg text-primary-content">
-              Your Role:{" "}
-              <span className="text-secondary">
+            <h1 className="sm:text-xlmd:text-4xl text-lg text-primary-content">
+              Members
+            </h1>
+            <div>
+              <h2 className="hidden text-lg text-primary-content sm:inline">
+                Your Role:{" "}
+              </h2>
+              <span className="inline text-secondary">
                 {memberObject.role.toUpperCase()}
               </span>
-            </h2>
+            </div>
           </div>
           <MembersTable columns={columns} data={columnsData} />
         </div>

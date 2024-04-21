@@ -96,7 +96,9 @@ const columns: ColumnDef<membersTableDataType>[] = [
               </button>
             </ManagePermissionModal>
           ) : (
-            <span className="badge badge-md">Action Unavailable</span>
+            <span className="badge badge-xs truncate sm:badge-md">
+              Action Unavailable
+            </span>
           )}
         </>
       );

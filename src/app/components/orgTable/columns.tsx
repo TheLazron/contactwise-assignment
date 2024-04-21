@@ -1,17 +1,9 @@
 "use client";
 
-import { Organisation } from "@prisma/client";
-import {
-  CaretRightIcon,
-  CaretSortIcon,
-  DotsVerticalIcon,
-  TrashIcon,
-} from "@radix-ui/react-icons";
+import { CaretRightIcon, TrashIcon } from "@radix-ui/react-icons";
 import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { OrgObjectSchema } from "schemas";
 import { getOrganisationsResponseType } from "types";
-import { z } from "zod";
 import DeleteOrgModal from "../deleteOrgModal";
 
 export const columns: ColumnDef<getOrganisationsResponseType>[] = [
@@ -70,28 +62,11 @@ export const columns: ColumnDef<getOrganisationsResponseType>[] = [
     cell: ({ row }) => {
       const data = row.original;
       return data.currentUserId === data.owner.id ? (
-        <div className="dropdown dropdown-end dropdown-left">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn-sm m-1 flex items-center justify-center"
-          >
-            <DotsVerticalIcon className="h-4 " />
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-          >
-            <li>
-              <DeleteOrgModal orgId={data.id}>
-                <>
-                  <TrashIcon />
-                  Delete
-                </>
-              </DeleteOrgModal>
-            </li>
-          </ul>
-        </div>
+        <DeleteOrgModal orgId={data.id}>
+          <button className="  btn btn-circle btn-error btn-sm">
+            <TrashIcon />
+          </button>
+        </DeleteOrgModal>
       ) : null;
     },
   },
@@ -111,23 +86,3 @@ export const columns: ColumnDef<getOrganisationsResponseType>[] = [
     },
   },
 ];
-
-// <DropdownMenu>
-//   <DropdownMenuTrigger asChild>
-//     <Button variant="ghost" className="h-8 w-8 p-0">
-//       <span className="sr-only">Open menu</span>
-//       <DotsHorizontalIcon className="h-4 w-4" />
-//     </Button>
-//   </DropdownMenuTrigger>
-//   <DropdownMenuContent align="end">
-//     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-//     <DropdownMenuItem
-//       onClick={() => navigator.clipboard.writeText(payment.id)}
-//     >
-//       Copy payment ID
-//     </DropdownMenuItem>
-//     <DropdownMenuSeparator />
-//     <DropdownMenuItem>View customer</DropdownMenuItem>
-//     <DropdownMenuItem>View payment details</DropdownMenuItem>
-//   </DropdownMenuContent>
-// </DropdownMenu>

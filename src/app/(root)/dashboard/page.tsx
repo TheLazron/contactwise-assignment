@@ -24,7 +24,7 @@ const DashboardPage = async () => {
   return (
     <HydrationBoundary state={dehydrateState}>
       <div className="container mt-24 flex min-h-screen flex-col  bg-base-100 bg-opacity-70 px-0 py-10">
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-center sm:justify-end">
           <NavigationMenuDemo />
         </div>
         <DashboardTables />
