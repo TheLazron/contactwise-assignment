@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { env } from "~/env";
 
+//nodemailer configuration
 const transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
@@ -47,7 +48,7 @@ export const sendMailRequest = async (
       }
     });
   });
-
+  //mail options for both verification and password reset mails
   let mailOptions = {};
   switch (type) {
     case "verification":

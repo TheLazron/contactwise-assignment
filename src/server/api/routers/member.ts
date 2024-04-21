@@ -1,14 +1,12 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 import { z } from "zod";
-import { editProfileSchema } from "schemas/userSchemas";
 import { TRPCError } from "@trpc/server";
 import {
   changeMemberRoleSchema,
   changePermissisonsRequestSchema,
-  changePermissisonsSchema,
 } from "schemas/memberSchemas";
-import type { $Enums, Permissions, PrismaClient } from "@prisma/client";
+import type { Permissions, PrismaClient } from "@prisma/client";
 
 const checkForPermissions = async (
   db: PrismaClient,

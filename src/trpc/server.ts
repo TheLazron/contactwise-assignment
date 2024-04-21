@@ -22,7 +22,7 @@ const createContext = cache(() => {
 });
 
 export const api = createCaller(createContext);
-
+//SSRHelper to to prefetch data
 export const createSSRHelper = async () =>
   createServerSideHelpers({
     router: appRouter,

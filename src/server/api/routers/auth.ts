@@ -4,7 +4,7 @@ import {
   RegisterSchema,
   ResetPasswordSchema,
   verifyTokenSchema,
-} from "schemas";
+} from "schemas/authSchemas";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 

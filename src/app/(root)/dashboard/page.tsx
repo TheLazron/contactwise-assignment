@@ -18,6 +18,7 @@ const DashboardPage = async () => {
   if (!session?.user) {
     redirect("/auth/signin");
   }
+  //prefetch data to be hydrated on Dashboard
   const helpers = await createSSRHelper();
   await helpers.organisation.getOrgs.prefetch();
   const dehydrateState = dehydrate(helpers.queryClient);

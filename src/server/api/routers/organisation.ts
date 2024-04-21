@@ -1,6 +1,5 @@
 import { Permissions, PrismaClient } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { join } from "path";
 import {
   createOrganisationSchema,
   editOrganisationSchema,
@@ -10,6 +9,7 @@ import generateOrgCode from "~/lib/generateCode";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
+//helper function to check of a user has the required permissions
 const checkForPermissions = async (
   db: PrismaClient,
   organisationId: string,
@@ -78,39 +78,47 @@ export const organisationRouter = createTRPCRouter({
       const { id: userId } = ctx.session.user;
 
       return ctx.db.$transaction(async (prisma) => {
-        const org = await prisma.organisation.findFirst({ where: { code } });
+        try {
+          const org = await prisma.organisation.findFirst({ where: { code } });
 
-        if (!org) {
+          if (!org) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "Organisation not found",
+            });
+          }
+
+          const member = await prisma.members.findFirst({
+            where: {
+              userId,
+              organisationId: org.id,
+            },
+          });
+
+          if (member) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "You are already a member of this organisation",
+            });
+          }
+
+          await prisma.members.create({
+            data: {
+              userId,
+              organisationId: org.id,
+              role: "user",
+              permissions: [],
+            },
+          });
+
+          return org;
+        } catch (error) {
+          console.error(error);
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Organisation not found",
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An error occurred while joining the organisation",
           });
         }
-
-        const member = await prisma.members.findFirst({
-          where: {
-            userId,
-            organisationId: org.id,
-          },
-        });
-
-        if (member) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "You are already a member of this organisation",
-          });
-        }
-
-        await prisma.members.create({
-          data: {
-            userId,
-            organisationId: org.id,
-            role: "user",
-            permissions: [],
-          },
-        });
-
-        return org;
       });
     }),
   getOrgs: protectedProcedure.query(async ({ ctx }) => {

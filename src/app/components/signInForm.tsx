@@ -1,7 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa";
-import { LoginSchema } from "schemas";
+import { LoginSchema } from "schemas/authSchemas";
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";

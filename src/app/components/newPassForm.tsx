@@ -1,5 +1,5 @@
 "use client";
-import { NewPasswordSchema } from "schemas";
+import { NewPasswordSchema } from "schemas/authSchemas";
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";

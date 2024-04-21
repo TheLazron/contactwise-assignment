@@ -6,40 +6,35 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
-import EmailProvider from "next-auth/providers/email";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { env } from "~/env";
 import { db } from "~/server/db";
 import { sendMailRequest } from "./nodemailer";
-import { LoginSchema } from "schemas";
+import { LoginSchema } from "schemas/authSchemas";
 import { generateVerificationToken } from "~/lib/verification-token";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
     } & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 export const authOptions: NextAuthOptions = {
+  //custom pages implemented
   pages: {
     signIn: "/auth/signin",
     signOut: "/auth/signout",
   },
+  //jet session for both providers
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
   callbacks: {
+    //check for verified account
     signIn: async ({ user, account }) => {
       if (account?.provider != "credentials") return true;
 
@@ -56,6 +51,7 @@ export const authOptions: NextAuthOptions = {
 
       return true;
     },
+
     jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;
@@ -100,5 +96,5 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 };
-
+//helper function to get server session with options
 export const getServerAuthSession = () => getServerSession(authOptions);

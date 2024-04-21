@@ -16,7 +16,7 @@ const OrganisationPage = async ({ params }: { params: { orgId: string } }) => {
   if (!session?.user) {
     redirect("/auth/signin");
   }
-
+  //prefetch data to be hydrated on OrganisationPage
   const helpers = await createSSRHelper();
   await helpers.organisation.getOrg.prefetch({ orgId: params.orgId });
   await helpers.member.getRole.prefetch({ orgId: params.orgId });

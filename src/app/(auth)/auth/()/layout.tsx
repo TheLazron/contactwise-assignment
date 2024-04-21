@@ -10,7 +10,7 @@ export default async function AuthLayout({
   if (session?.user) {
     redirect("/dashboard");
   }
-
+  //root layout for auth pages sharing a same server-side rendered layout
   return (
     <>
       <section className="flex w-full ">

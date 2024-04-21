@@ -1,6 +1,5 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-import { z } from "zod";
 import { editProfileSchema } from "schemas/userSchemas";
 import { TRPCError } from "@trpc/server";
 
@@ -47,8 +46,8 @@ export const userRouter = createTRPCRouter({
             image,
           },
         });
-
-        return updatedUser;
+        const { password, ...userWithoutPassword } = updatedUser;
+        return userWithoutPassword;
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

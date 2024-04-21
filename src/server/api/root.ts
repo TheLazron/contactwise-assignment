@@ -9,6 +9,7 @@ import { memeberRouter } from "./routers/member";
  *
  * All routers added in /api/routers should be manually added here.
  */
+//group different tRPC routers together
 export const appRouter = createTRPCRouter({
   auth: authRouter,
   organisation: organisationRouter,
