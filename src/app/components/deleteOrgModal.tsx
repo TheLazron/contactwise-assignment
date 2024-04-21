@@ -29,18 +29,8 @@ type EditOrgSchemaType = z.infer<typeof editOrganisationSchema>;
 
 const DeleteOrgModal: FC<ModalWrapperProps> = ({ children, orgId }) => {
   const router = useRouter();
+  const utils = api.useUtils();
 
-  // const deleteOrganisation = api.organisation.deleteOrganisation.useMutation({
-  //   onSuccess: () => {
-  //     closeModal();
-  //     router.push("/dashboard");
-  //     toast.success("Organisation Deleted Successfully");
-  //   },
-  //   onError: (error) => {
-  //     closeModal();
-  //     toast.error(error.message);
-  //   },
-  // });
   const deleteOrganisation = api.organisation.deleteOrganisation.useMutation();
 
   const openModal = () => {
@@ -87,6 +77,9 @@ const DeleteOrgModal: FC<ModalWrapperProps> = ({ children, orgId }) => {
                     error(error) {
                       closeModal();
                       return `Error: ${(error as Error).message}`;
+                    },
+                    finally: async () => {
+                      await utils.organisation.getOrgs.invalidate();
                     },
                   },
                 );

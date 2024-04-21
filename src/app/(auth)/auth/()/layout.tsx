@@ -29,7 +29,7 @@ export default async function AuthLayout({
           </div>
           <p className="mt-2 text-[12px] italic text-gray-600 sm:text-base md:text-sm lg:text-xl">
             {
-              '"Landscape, a comprehensive tool for user management, empowers users to create and join organizations with ease. It provides a robust platform for managing user permissions and roles, ensuring secure and efficient collaboration. "'
+              '"Landscape, a comprehensive tool for user management, empowers users to create and join organizations with ease. It provides a robust platform for managing user permissions and roles, ensuring secure and efficient collaboration."'
             }
           </p>
         </div>

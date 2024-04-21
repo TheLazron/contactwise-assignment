@@ -24,9 +24,11 @@ export default async function Home() {
               </span>{" "}
               made easy.
             </h1>
-            <p className="sm:text-md mb-8 text-[12px] leading-relaxed lg:text-lg">
-              Landscape is your one-stop solution for managing users and their
-              permissions
+            <p className="sm:text-md mb-8 text-[12px] font-medium leading-relaxed lg:text-lg">
+              Landscape allows users to create organizations and manage users
+              within them, while also enabling participation in other
+              organizations. With featured roles and a permission management
+              system, user management becomes effortless.
             </p>
 
             <div className="flex justify-center">
