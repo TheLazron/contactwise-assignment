@@ -34,8 +34,16 @@ export function NavigationMenuDemo() {
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Join Organisation</NavigationMenuTrigger>
-          <NavigationMenuContent>
+          <NavigationMenuTrigger
+            onPointerMove={(event) => event.preventDefault()}
+            onPointerLeave={(event) => event.preventDefault()}
+          >
+            Join Organisation
+          </NavigationMenuTrigger>
+          <NavigationMenuContent
+            onPointerEnter={(event) => event.preventDefault()}
+            onPointerLeave={(event) => event.preventDefault()}
+          >
             <div className="flex items-center p-2">
               <JoinNewOrgForm />
             </div>
